@@ -7,17 +7,19 @@
 나머지 챕터는 코딩 실습 자료들이 있으므로 개발자 위주로 편성
 
 # Chapters
-<ul> Chapter 1: '[What Is Ethereum](https://github.com/ganadara135/masteringEthereumBookSummary/blob/main/chapter1.md)'
-<ul> Chapter 2: ['Ethereum Basics']() </ul>
-<ul> Chapter 3: ['Ethereum Clients']() </ul>
-<ul> Chapter 4: ['Cryptography']() </ul>
-<ul> Chapter 5: ['Wallets']() </ul>
-<ul> Chapter 6: ['Transactions']() </ul>
-<ul> Chapter 7: ['Smart Contracts and Solidity']() </ul>
-<ul> Chapter 8: ['Smart Contracts and Vyper']() </ul>
-<ul> Chapter 9: ['Smart Contract Security']() </ul>
-<ul> Chapter 10: ['Tokens']() </ul>
-<ul> Chapter 11: ['Oracles']() </ul>
-<ul> Chapter 12: ['Decentralized Applications (DApps)']() </ul>
-<ul> Chapter 13: ['The Ethereum Virtual Machine']() </ul>
-<ul> Chapter 14: ['Consensus']() </ul>
+Preface: '[Preface](https://github.com/ethereumbook/ethereumbook/blob/develop/preface.asciidoc)'
+
++ Chapter 1: '[What Is Ethereum](https://github.com/ganadara135/masteringEthereumBookSummary/blob/main/chapter1.md)' 호연
++ Chapter 2: ['Ethereum Basics']() 호연
++ Chapter 3: ['Ethereum Clients']() 규관
++ Chapter 4: ['Cryptography']() 다혜
++ Chapter 5: ['Wallets']()
++ Chapter 6: ['Transactions']()
++ Chapter 7: ['Smart Contracts and Solidity']()
++ Chapter 8: ['Smart Contracts and Vyper']()
++ Chapter 9: ['Smart Contract Security']()
++ Chapter 10: ['Tokens']() 
++ Chapter 11: ['Oracles']() 
++ Chapter 12: ['Decentralized Applications (DApps)']()
++ Chapter 13: ['The Ethereum Virtual Machine']()
++ Chapter 14: ['Consensus']() 
