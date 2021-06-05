@@ -7,7 +7,7 @@
 나머지 챕터는 코딩 실습 자료들이 있으므로 개발자 위주로 편성
 
 # Chapters
-<ul> Chapter 1: ['What Is Ethereum'](https://github.com/ethereumbook/ethereumbook) </ul>
+<ul> Chapter 1: '[What Is Ethereum](https://github.com/ganadara135/masteringEthereumBookSummary/main/chapter1.MD)'
 <ul> Chapter 2: ['Ethereum Basics']() </ul>
 <ul> Chapter 3: ['Ethereum Clients']() </ul>
 <ul> Chapter 4: ['Cryptography']() </ul>
