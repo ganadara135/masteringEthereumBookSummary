@@ -170,8 +170,58 @@ Economic security
 Clients
 이더리움은 클라이언트간에 사용 운영할 수 있는 소프트웨어가 있다.  가장 유명한게 Go-Ethereum (Geth), Parity 이다.  
 
+## 추가 읽을거리
+Further Reading
+
+The Ethereum Yellow Paper: https://ethereum.github.io/yellowpaper/paper.pdf
+
+The Beige Paper, a rewrite of the Yellow Paper for a broader audience in less formal language: https://github.com/chronaeon/beigepaper
+
+ÐΞVp2p network protocol: https://github.com/ethereum/devp2p/blob/master/rlpx.md
+
+Ethereum Virtual Machine list of resources: https://eth.wiki/en/concepts/evm/ethereum-virtual-machine-(evm)-awesome-list
+
+LevelDB database (used most often to store the local copy of the blockchain): https://github.com/google/leveldb
+
+Merkle Patricia trees: https://eth.wiki/en/fundamentals/patricia-tree
+
+Ethash PoW algorithm: https://eth.wiki/en/concepts/ethash/ethash
+
+Casper PoS v1 Implementation Guide: http://bit.ly/2DyPr3l
+
+Go-Ethereum (Geth) client: https://geth.ethereum.org/
+
+Parity Ethereum client: https://parity.io/
 
 
+## 이더리움과 튜링 완전성
+Ethereum and Turing Completeness  
 
+이더리움을 공부하면 튜링 완전성 이라는 용어를 접한게 된다. 비트코인과 다르게 이더리움은 튜링 완전하다.  
+이것이 무엇을 의미하는가?  
 
+이 용어는 영국 수학자 앨런 튜닝에서 따왔다. 그는 컴퓨터과학의 아버지라 여겨진다.  
+1936년에 그가 컴퓨터의 수학적 모델을 완성했고, 상태 머신이 연속 메모리에 상징을 읽고 쓰면서 조작한다.  
+이 발명으로 튜링은 유니버셜 컴퓨팅이 무엇인가라는 질문에 답을 수학적으로 완성한다.  
+이 행위의 의미는 모든 문제는 해결할 수 있다는 것이다.  
+튜링은 또한 계산할 수 없는 문제의 종류가 있음을 증명했다.  
+특히 멈추는 문제가 해결할 수 없는 것이라 증명했는데, 이런 문제는 임의의 문제나 입력 상황이 프로그램을 정지시킬 수 있다고 것이다.  
 
+앨런 튜닝은 튜닝 머신이 시뮬레이션할 수 있다면 그것을 튜닝 완전하다고 정의한다. 이런 시스템을 유니버셜 튜닝 머신이라 한다(UTM)  
+상태 머신에서 저장된 프로그램을 이더리움 실행할 수 있고,  메모리에서 데이터를 읽고 쓰는 행위를 튜닝 완전 시스템이라고 부른다.  
+이더리움은 튜닝 머신에서 계산할 수 있는 어떤 알고리즘도 처리할 수 있다. 당연히 한정된 메모리의 제한을 받는다.  
+
+이더리움의 혁신성은 비중앙화 블록체인과 범용 컴퓨팅 아키텍처를 결합한 것이다.  
+그에따라서 분산화된 싱글 상태 세계 컴퓨터가 창조되었다.  이더리움 프로그램은 어디에서는 운영되지만 컨센서스 규칙에 따라서 공통 상태자 유진된다.  
+
+## 튜링 완전성의 특징
+Turing Completeness as a "Feature"
+
+Hearing that Ethereum is Turing complete, you might arrive at the conclusion that this is a feature that is somehow lacking in a system that is Turing incomplete. Rather, it is the opposite. Turing completeness is very easy to achieve; in fact, the simplest Turing-complete state machine known has 4 states and uses 6 symbols, with a state definition that is only 22 instructions long. Indeed, sometimes systems are found to be "accidentally Turing complete." A fun reference of such systems can be found at http://bit.ly/2Og1VgX.
+
+However, Turing completeness is very dangerous, particularly in open access systems like public blockchains, because of the halting problem we touched on earlier. For example, modern printers are Turing complete and can be given files to print that send them into a frozen state. The fact that Ethereum is Turing complete means that any program of any complexity can be computed by Ethereum. But that flexibility brings some thorny security and resource management problems. An unresponsive printer can be turned off and turned back on again. That is not possible with a public blockchain.
+
+이더리움이 튜링 완전하다라고 하는게 튜링 불완전한 시스템에게 부족한 특징인가라는 결론에 도달할 것이다.  
+튜링 완전성은 달성하기 쉽다. 가장 단순한 튜링 완전한 상태 머신은 4가지 상태와 6 심볼을 사용한다.  
+이것을 오직 22 가지 명령어로써 상태를 정의한다. 때때로 튜링 완전한 시스템들이 우연히 발견된다.  
+그와같은 시스템들은 레퍼런스가 이 링크에서 찾아볼 수 있다.
