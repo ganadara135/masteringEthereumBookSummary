@@ -217,11 +217,20 @@ Ethereum and Turing Completeness
 ## 튜링 완전성의 특징
 Turing Completeness as a "Feature"
 
-Hearing that Ethereum is Turing complete, you might arrive at the conclusion that this is a feature that is somehow lacking in a system that is Turing incomplete. Rather, it is the opposite. Turing completeness is very easy to achieve; in fact, the simplest Turing-complete state machine known has 4 states and uses 6 symbols, with a state definition that is only 22 instructions long. Indeed, sometimes systems are found to be "accidentally Turing complete." A fun reference of such systems can be found at http://bit.ly/2Og1VgX.
-
-However, Turing completeness is very dangerous, particularly in open access systems like public blockchains, because of the halting problem we touched on earlier. For example, modern printers are Turing complete and can be given files to print that send them into a frozen state. The fact that Ethereum is Turing complete means that any program of any complexity can be computed by Ethereum. But that flexibility brings some thorny security and resource management problems. An unresponsive printer can be turned off and turned back on again. That is not possible with a public blockchain.
-
 이더리움이 튜링 완전하다라고 하는게 튜링 불완전한 시스템에게 부족한 특징인가라는 결론에 도달할 것이다.  
 튜링 완전성은 달성하기 쉽다. 가장 단순한 튜링 완전한 상태 머신은 4가지 상태와 6 심볼을 사용한다.  
 이것을 오직 22 가지 명령어로써 상태를 정의한다. 때때로 튜링 완전한 시스템들이 우연히 발견된다.  
-그와같은 시스템들은 레퍼런스가 이 링크에서 찾아볼 수 있다.
+그와같은 시스템들은 레퍼런스가 이 링크에서 찾아볼 수 있다. http://bit.ly/2Og1VgX.
+
+하지만 튜링 완전성은 매우 위험하다. 특히 퍼블릭 블록체인과 같은 오픈 접근 시스템에서 그렇다.
+이것은 정지 문제가 발생할 수 있기 때문이다. 구체적인 예로써 프린터기기는 튜링 완전하다.  
+프린트를 위해 보내진 파일이 정지 상태가 됐을때 먹통을 만들 수 있다.  
+이더리움이 튜링 완전하다는 것은 어떤 복잡도의 문제라도 이더리움에서 계산될 수 있다는 것을 의미한다.  
+그러나 복잡도가 곤란한 보안 문제나 자원 관리 문제를 야기한다.  
+미반응 프린터는 재부팅하여 정상화할 수 있으나, 퍼블릭 블록체인은 이것이 불가하다.  
+
+## 튜링 완전성의 함축하는 것
+Implications of Turing Completeness
+
+Turing proved that you cannot predict whether a program will terminate by simulating it on a computer. In simple terms, we cannot predict the path of a program without running it. Turing-complete systems can run in "infinite loops," a term used (in oversimplification) to describe a program that does not terminate. It is trivial to create a program that runs a loop that never ends. But unintended never-ending loops can arise without warning, due to complex interactions between the starting conditions and the code. In Ethereum, this poses a challenge: every participating node (client) must validate every transaction, running any smart contracts it calls. But as Turing proved, Ethereum can’t predict if a smart contract will terminate, or how long it will run, without actually running it (possibly running forever). Whether by accident or on purpose, a smart contract can be created such that it runs forever when a node attempts to validate it. This is effectively a DoS attack. And of course, between a program that takes a millisecond to validate and one that runs forever are an infinite range of nasty, resource-hogging, memory-bloating, CPU-overheating programs that simply waste resources. In a world computer, a program that abuses resources gets to abuse the world’s resources. How does Ethereum constrain the resources used by a smart contract if it cannot predict resource use in advance?
+
