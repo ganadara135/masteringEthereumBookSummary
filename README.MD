@@ -3,8 +3,14 @@
 원본 사이트 링크 : https://github.com/ethereumbook/ethereumbook
 
 ## 대상 독자
-저자 서문에 따르면 챕터 1, 2 는 비개발자로서 개념을 파악코자 하는 자
+저자 서문에 따르면 챕터 1, 2 는 비개발자로서 개념을 파악코자 하는 자 <br>
 나머지 챕터는 코딩 실습 자료들이 있으므로 개발자 위주로 편성
+
+## 저자 소개
+본 책은 Andreas M. Antonopoulos and Dr. Gavin Wood. 가 저작 <br>
+Andreas 는 Mastering Bitcoin (O’Reilly) 저자임 <br>
+2016년 5월에 둘이 만나서 Creative Commons license 아래서 본 책을 저작하기로 함   
+
 
 # Chapters
 Preface: '[Preface](https://github.com/ethereumbook/ethereumbook/blob/develop/preface.asciidoc)'
