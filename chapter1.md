@@ -230,7 +230,31 @@ Turing Completeness as a "Feature"
 미반응 프린터는 재부팅하여 정상화할 수 있으나, 퍼블릭 블록체인은 이것이 불가하다.  
 
 ## 튜링 완전성의 함축하는 것
-Implications of Turing Completeness
+Implications of Turing Completeness  
 
-Turing proved that you cannot predict whether a program will terminate by simulating it on a computer. In simple terms, we cannot predict the path of a program without running it. Turing-complete systems can run in "infinite loops," a term used (in oversimplification) to describe a program that does not terminate. It is trivial to create a program that runs a loop that never ends. But unintended never-ending loops can arise without warning, due to complex interactions between the starting conditions and the code. In Ethereum, this poses a challenge: every participating node (client) must validate every transaction, running any smart contracts it calls. But as Turing proved, Ethereum can’t predict if a smart contract will terminate, or how long it will run, without actually running it (possibly running forever). Whether by accident or on purpose, a smart contract can be created such that it runs forever when a node attempts to validate it. This is effectively a DoS attack. And of course, between a program that takes a millisecond to validate and one that runs forever are an infinite range of nasty, resource-hogging, memory-bloating, CPU-overheating programs that simply waste resources. In a world computer, a program that abuses resources gets to abuse the world’s resources. How does Ethereum constrain the resources used by a smart contract if it cannot predict resource use in advance?
+튜링이 증명했다. 컴퓨터에 프로그램을 시뮬레이션하여서 언제 완료할 것인지 예측할 수 없다는 것을.  
+다른 말로 프로그램을 돌려보기 전까지는 해당 경로를 예측할 수 없다는 것이다.  
+튜링 완전한 시스템은 무한 루프 상태로 운영할 수 있다. 결과 종료하지 않는 무한 루프 프로그램을 만드는 것은 쉽다.  
+그러나 의도하지 않는 무한 루프가 경고 없이 나타날 수 있는데, 이것은 코드와 시작 조건 사이에 복잡한 상호 작용 때문이다.  
+이더리움에선 이런 상태가 도전과제이다. 모든 참여 노드들이 모든 트랜잭션과 스마트컨트랙트 호출을 검증해야한다.  
+그러나 튜링이 증명한것처럼 이더리움이 예측할 수 없다. 언제 스마트컨트랙트가 종료하고 얼마나 오래 운영할 것인지.  
+실제 돌려봐야 알 수가 있고, 어떤 경우에는 영원히 종료하지 않을 수도 있다.  
+사고든지 또는 의도적으로든지 한 노드가 검증 작업에 들어갈때 종료되지 않고 영원히 돌가 가능 경우가 발생할 수 있다.  
+이런 점이 DoS 공격에 효과적이다. 세계 컴퓨터에서 자원을 남용하는 프로그램은 세계 자원을 낭비하는 것이다.  
+이더리움은 어떻게 미리 자원 사용을 예측하고 방지할 수 있는가?  
+
+이 문제에 답하기 위해서 이더리움은 가스라고 불리는 측정하는 메커니즘을 도입한다.  
+EVM 이 스마트컨트랙트를 실행할때, 주의깊게 모든 명령어를 카운팅한다.  
+각 명령어는 가스 단위로 사전 계산된 비용이 있다.  
+트랜잭션이 스마트컨트랙트 시행을 야기할때, 스마트컨트랙트 운영하면서 소비되는 최대한계의 가스량이 포함돼 있어야 한다.  
+EVM 은 트랜잭션에 이용할 수 있는 가스가 초과되면 실행을 종료한다.  
+가스가 이더리움이 튜링 완전 컴퓨팅을 허용하기 위해 사용하는 메커니즘이다. 이것이 프로그램이 소비할 수 있는 자원의 제한하다.  
+
+다음 질문은 "어떻게 이더리움 세계 컴퓨터에서 컴퓨팅 비용을 지불할 수 있는가?"  
+거래소에서 가스를 찾을 수는 없다. 이것은 오직 트랜잭션에 의해서 구입할 수 있거나,  
+이더에 의해서 구입할 수 있다.  이더는 트랜잭션에 의해서 보낼때 필요하고,  
+받아들일 수 있는 가스 가격 수준에서 구입하도록 배정되야 한다.  
+가스 가격은 고정돼 있지 않다.  가스는 트랜잭션 위해 구입되어야 하고,  
+컴퓨팅이 수행되며, 남은 가스는 트랜잭션 전송자에게 되돌려 진다.  
+
 
