@@ -29,3 +29,4 @@ Preface: '[Preface](https://github.com/ethereumbook/ethereumbook/blob/develop/pr
 + Chapter 12: ['Decentralized Applications (DApps)']()
 + Chapter 13: ['The Ethereum Virtual Machine']()
 + Chapter 14: ['Consensus']() 
++ 용어정의 : '[glossary](https://github.com/ethereumbook/ethereumbook/blob/develop/glossary.asciidoc)'
