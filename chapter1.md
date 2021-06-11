@@ -257,4 +257,58 @@ EVM 은 트랜잭션에 이용할 수 있는 가스가 초과되면 실행을 �
 가스 가격은 고정돼 있지 않다.  가스는 트랜잭션 위해 구입되어야 하고,  
 컴퓨팅이 수행되며, 남은 가스는 트랜잭션 전송자에게 되돌려 진다.  
 
+## 범용 블록체인부터 비중앙화 어플까지
+From General-Purpose Blockchains to Decentralized Applications (DApps)  
+
+이더리움은 여러 사용성을 고려해서 프로그램할 수 있도록 범용 블록체인을 만들기 위해 출발했다.  
+하지만 이더리움 비전은 프로그래밍 댑을 위한 플랫폼이 되기까지 확장되었다.  
+댑은 스마트컨트랙트보다 더 넓은 관점을 나타낸다. 댑은 최소 범위에서는 스마트컨트랙트와 웹 사용자 인터페이스이다.  
+더 넓게는 댑은 오픈되고 비중앙화되고 p2p 된 환경에서 만들어진 웹 어플이다.  
+
+댑은 최소한 다음과 같이 구성된다:  
++ 블록체인 위에 스마트컨트랙트  
++ 웹 프런트엔트 유저 인터페이스  
+
+추가적으로, 댑은 비중앙화 콤포넌트를 포함한다:  
++ 비중앙화(P2P) 저장 프로토콜과 플랫폼  
++ 비중앙화(P2P) 메시징 프로토콜과 플랫폼  
+
+## 인터넷의 3번째 시대  
+The Third Age of the Internet  
+
+In 2004 the term "Web 2.0" came to prominence, describing an evolution of the web toward user-generated content, responsive interfaces, and interactivity. Web 2.0 is not a technical specification, but rather a term describing the new focus of web applications.
+
+The concept of DApps is meant to take the World Wide Web to its next natural evolutionary stage, introducing decentralization with peer-to-peer protocols into every aspect of a web application. The term used to describe this evolution is web3, meaning the third "version" of the web. First proposed by Dr. Gavin Wood, web3 represents a new vision and focus for web applications: from centrally owned and managed applications, to applications built on decentralized protocols.
+
+In later chapters we’ll explore the Ethereum web3.js JavaScript library, which bridges JavaScript applications that run in your browser with the Ethereum blockchain. The web3.js library also includes an interface to a P2P storage network called Swarm and a P2P messaging service called Whisper. With these three components included in a JavaScript library running in your web browser, developers have a full application development suite that allows them to build web3 DApps.
+
+Ethereum’s Development Culture
+So far we’ve talked about how Ethereum’s goals and technology differ from those of other blockchains that preceded it, like Bitcoin. Ethereum also has a very different development culture.
+
+In Bitcoin, development is guided by conservative principles: all changes are carefully studied to ensure that none of the existing systems are disrupted. For the most part, changes are only implemented if they are backward compatible. Existing clients are allowed to opt-in, but will continue to operate if they decide not to upgrade.
+
+In Ethereum, by comparison, the community’s development culture is focused on the future rather than the past. The (not entirely serious) mantra is "move fast and break things." If a change is needed, it is implemented, even if that means invalidating prior assumptions, breaking compatibility, or forcing clients to update. Ethereum’s development culture is characterized by rapid innovation, rapid evolution, and a willingness to deploy forward-looking improvements, even if this is at the expense of some backward compatibility.
+
+What this means to you as a developer is that you must remain flexible and be prepared to rebuild your infrastructure as some of the underlying assumptions change. One of the big challenges facing developers in Ethereum is the inherent contradiction between deploying code to an immutable system and a development platform that is still evolving. You can’t simply "upgrade" your smart contracts. You must be prepared to deploy new ones, migrate users, apps, and funds, and start over.
+
+Ironically, this also means that the goal of building systems with more autonomy and less centralized control is still not fully realized. Autonomy and decentralization require a bit more stability in the platform than you’re likely to get in Ethereum in the next few years. In order to "evolve" the platform, you have to be ready to scrap and restart your smart contracts, which means you have to retain a certain degree of control over them.
+
+But, on the positive side, Ethereum is moving forward very fast. There’s little opportunity for "bike-shedding," an expression that means holding up development by arguing over minor details such as how to build the bicycle shed at the back of a nuclear power station. If you start bike-shedding, you might suddenly discover that while you were distracted the rest of the development team changed the plan and ditched bicycles in favor of autonomous hovercraft.
+
+Eventually, the development of the Ethereum platform will slow down and its interfaces will become fixed. But in the meantime, innovation is the driving principle. You’d better keep up, because no one will slow down for you.
+
+
+## 왜 이더리움을 배우는가?  
+Why Learn Ethereum?  
+
+Blockchains have a very steep learning curve, as they combine multiple disciplines into one domain: programming, information security, cryptography, economics, distributed systems, peer-to-peer networks, etc. Ethereum makes this learning curve a lot less steep, so you can get started quickly. But just below the surface of a deceptively simple environment lies a lot more. As you learn and start looking deeper, there’s always another layer of complexity and wonder.
+
+Ethereum is a great platform for learning about blockchains and it’s building a massive community of developers, faster than any other blockchain platform. More than any other, Ethereum is a developer’s blockchain, built by developers for developers. A developer familiar with JavaScript applications can drop into Ethereum and start producing working code very quickly. For the first few years of Ethereum’s life, it was common to see T-shirts announcing that you can create a token in just five lines of code. Of course, this is a double-edged sword. It’s easy to write code, but it’s very hard to write good and secure code.
+
+## 이 책은 무엇을 가르치는가  
+What This Book Will Teach You  
+
+This book dives into Ethereum and examines every component. You will start with a simple transaction, dissect how it works, build a simple contract, make it better, and follow its journey through the Ethereum system.
+
+You will learn not only how to use Ethereum—how it works—but also why it is designed the way it is. You will be able to understand how each of the pieces works, and how they fit together and why.
 
