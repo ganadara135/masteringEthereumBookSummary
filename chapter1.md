@@ -74,3 +74,46 @@ Dr. Gavin 은 비탈릭에게 C++ 프로그래밍 기술로 알려주고 초기 
 
 ## 이더리움 개발 4 단계
 Ethereum’s Four Stages of Development
+
+이더리움 개발은  주요 4 단계로 나눠지고, 하드포크 시에는 되돌릴 수 없다.  
+주 4 단계는 코드네임은 Frontier, Homestead, Metropolis, Serenity 로 나눠진다.  
+중간이 이뤄진 하드포크 된 코드네임은 Ice Age, DAO, Tangerine Whistle, Spurious Dragon, Byzantium, Constantinople/St. Petersburg, Istanbul and Muir Glacier.  
+주요 단계와 중간 단계 하드포크 내역은 타임라인된 블록번호로 아래와 같다.  
+
+Block #0
+Frontier— 이더리움 초기 단계, 2015년 7월 30일 부터 2016년 3월  
+
+Block #200,000
+Ice Age— 지수 디피컬티 상승 시킴, 향후에 PoS 도입을 위한 기반 마련  
+
+Block #1,150,000
+Homestead—  이더리움 중간단계, 2016년 3월  
+
+Block #1,192,000
+DAO— DAO 컨트랙트가 해킹된 피해자들에게 상환하기 위해서 하드포크하여서 이더리움과 이더리움 클래식으로 분화됨   
+
+Block #2,463,000
+Tangerine Whistle— I/O 헤비 사용을 막고자 가스 계산식 변경하고 낮은 가스비 이용한 서비스거부 공격에 따른 축적된 데이터 삭제 시행 
+
+Block #2,675,000
+Spurious Dragon—  DoS 공격 벡터들을 해결하고 리플레이 공격 방어 매커니즘 반영
+
+Block #4,370,000
+Metropolis Byzantium—  이더리움 개발의 3단계인 Metropolis 다.  2017년 10월에 론칭한 Byzantium 은 Metropolis 에 첫 번째로 하위 단계의 기능 추가와 블록 보상과 난이도를 조정함   
+
+Block #7,280,000
+Constantinople / St.— Petersburg—Constantinople 은 Metropolis 의 두 번째 단계로 첫 가동후 몇 시간 뒤에 심각한 버그 발생함. 따라서 St. Petersburg 이름으로 하드포크 수행.  
+
+Block #9,069,000
+Istanbul—  위와 같음 상황으로 버그 발생하여 추가 하드포크 수행  
+
+Block #9,200,000
+Muir Glacier— Ice Age 에 도입한 지수 증분에 따른 난이도 조절을 위해 하드포크 수행.  
+
+Berlin and London 하드포크가 계획을 발표하였고, 현재 마지막 이더리움 개발 단계만 코드네임 Serenity가 남아있다.  
+Serenity 는 인프라를 전반적으로 재조직화할 것이다. 따라서 확장성과 안전성, 지속성이 더 좋아 진다.  
+이것을 "Ethereum 2.0" 이라 칭힌다.  
+
+## 이더리움: 범용 블록체인
+Ethereum: A General-Purpose Blockchain
+
