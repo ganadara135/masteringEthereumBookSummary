@@ -138,4 +138,40 @@ Key-Value 데이터 저장분은 키 값에 의해 임의이 값을 유지한다
 ## 이더리움 구성요소들
 Ethereum’s Components
 
+이더리움 에서도 일반 블록체인 시스템들의 구성요소들이 있다:  
+
+P2P network  
+이더리움은 이더리움 메인넷에서 운영되고, TCP 포트 30303 사용한다. 프로토콜은 ÐΞVp2p 이다.  
+
+Consensus rules  
+이더리움 컨센서스 규칙은 레퍼런스 스펙에 정의된다. The Yellow Paper.  
+
+Transactions  
+이더리움 트랜잭션은 네트워크 메시지이다. 송신자, 수신자 값, 데이터 페이로드로 구성된다.  
+
+State machine  
+이더리움 상태 전환은 이더리움 가상 머신(EVM)에 의해서 처리된다.  
+EVM 은 스택 기반 가상 머신으로 바이트코드(머신 명령어)를 실행한다.  
+"스마트컨트랙트"라고 불리는 EVM 프로그램은 고급 레벨 언어로 작성되고, 바이트코드로 컴파일 된다. (Solidity)  
+
+Data structures
+이더리움 상태는 데이터베이스와 같이 각 노드에 저장된다(Google LevelDB).  
+Merkle Patricia Tree 라고 불리는 시리얼라이즈드된 해시 데이터 구조로 트랜잭션과 시스템 상태가 저장된다.  
+
+Consensus algorithm
+이더리움은 비트코인 컨센서스 모델인 Nakamoto 컨센서스를 사용한다.  
+Nakamoto 컨센서스는 가장 긴 체인 판단하기 위해서 PoW 알고리즘으로 중요도를 가중치하는 연속 싱글 시그니처 블록을 한다.  
+하지만 앞으로 코드네임 Casper 로 진행중인 PoS 가중치 보팅 시스템으로 전환할 계획이다.  
+
+Economic security  
+이더리움은 현재 PoW 알고리즘(Ethash)을 사용한다.  
+하지만 앞으로 PoS 로 전환하면 궁궁적으로 제거될 것이다.  
+
+Clients
+이더리움은 클라이언트간에 사용 운영할 수 있는 소프트웨어가 있다.  가장 유명한게 Go-Ethereum (Geth), Parity 이다.  
+
+
+
+
+
 
