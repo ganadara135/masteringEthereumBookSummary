@@ -307,21 +307,22 @@ Ethereum’s Development Culture
 이더리움 개발 문화는 빠른 혁신과 진화, 진보를 따른다.  
 그것이 백워드 친화성을 파기할지라도.  
 
-What this means to you as a developer is that you must remain flexible and be prepared to rebuild your infrastructure as some of the underlying assumptions change. One of the big challenges facing developers in Ethereum is the inherent contradiction between deploying code to an immutable system and a development platform that is still evolving. You can’t simply "upgrade" your smart contracts. You must be prepared to deploy new ones, migrate users, apps, and funds, and start over.
+이런 문화는 개발자에게 유연성을 가지고 인프라에 변경이 있을때 대응해야 한다는 것이다.  
+이것이 개발자로서 귀사에 의미하는 바는 일부 기본 가정이 변경됨에 따라 유연성을 유지하고 인프라를 재구축할 준비를 해야 한다는 것입니다. 이더리움에서 개발자들이 직면한 큰 과제 중 하나는 불변 시스템에 코드를 배치하는 것과 여전히 진화하고 있는 개발 플랫폼 사이에 내재된 모순이다. 스마트 계약을 단순히 "업그레이드"할 수는 없습니다. 새로운 애플리케이션을 배포하고 사용자, 애플리케이션 및 펀드를 마이그레이션한 후 다시 시작할 준비가 되어 있어야 합니다.
 
-Ironically, this also means that the goal of building systems with more autonomy and less centralized control is still not fully realized. Autonomy and decentralization require a bit more stability in the platform than you’re likely to get in Ethereum in the next few years. In order to "evolve" the platform, you have to be ready to scrap and restart your smart contracts, which means you have to retain a certain degree of control over them.
+역설적이게도, 이것은 더 많은 자율성과 덜 중앙집권화된 통제력을 가진 시스템을 구축하려는 목표가 아직 완전히 실현되지 않았다는 것을 의미한다. 자율성과 분권화는 향후 몇 년 안에 이더리움에서 얻을 수 있는 것보다 플랫폼의 안정성을 약간 더 필요로 합니다. 플랫폼을 '진화'하려면 스마트 계약을 파기하고 재시작할 준비가 돼 있어야 하는데, 이는 스마트 계약에 대한 일정 수준의 제어권을 유지해야 한다는 의미입니다.
 
-But, on the positive side, Ethereum is moving forward very fast. There’s little opportunity for "bike-shedding," an expression that means holding up development by arguing over minor details such as how to build the bicycle shed at the back of a nuclear power station. If you start bike-shedding, you might suddenly discover that while you were distracted the rest of the development team changed the plan and ditched bicycles in favor of autonomous hovercraft.
+하지만, 긍정적인 측면에서, 이더리움은 매우 빠르게 발전하고 있습니다. 원자력발전소 뒤편에 자전거 보관소를 짓는 방법 등 사소한 문제를 놓고 논쟁을 벌여 개발을 보류한다는 뜻의 표현인 '자전거 피복'의 기회는 거의 없다. 만약 여러분이 자전거를 타기 시작한다면, 여러분은 갑자기 여러분이 정신이 팔려 있는 동안 나머지 개발팀들이 계획을 바꾸고 자율적인 호버크래프트를 위해 자전거를 버렸다는 것을 발견할지도 모릅니다.
 
-Eventually, the development of the Ethereum platform will slow down and its interfaces will become fixed. But in the meantime, innovation is the driving principle. You’d better keep up, because no one will slow down for you.
+결국 이더리움 플랫폼의 개발 속도가 느려지고 인터페이스가 고정될 것이다. 그러나 그 동안 혁신은 원동력이다. 아무도 당신을 위해 속도를 늦추지 않을 테니까, 계속 따라가는 게 좋을 거예요.
 
 
 ## 왜 이더리움을 배우는가?  
 Why Learn Ethereum?  
 
-Blockchains have a very steep learning curve, as they combine multiple disciplines into one domain: programming, information security, cryptography, economics, distributed systems, peer-to-peer networks, etc. Ethereum makes this learning curve a lot less steep, so you can get started quickly. But just below the surface of a deceptively simple environment lies a lot more. As you learn and start looking deeper, there’s always another layer of complexity and wonder.
+블록 체인은 프로그래밍, 정보 보안, 암호학, 경제, 분산 시스템, 피어 투 피어 네트워크 등 여러 분야를 하나의 영역으로 결합하기 때문에 학습 곡선이 매우 가파르다. 이더리움은 이 학습 곡선을 훨씬 덜 가파르게 만들기 때문에 빠르게 시작할 수 있다. 하지만 기만적일 정도로 단순한 환경의 바로 밑에는 훨씬 더 많은 것들이 있습니다. 여러분이 배우고 더 깊이 들여다보기 시작할 때, 항상 다른 복잡성과 경이로움의 층이 있습니다.
 
-Ethereum is a great platform for learning about blockchains and it’s building a massive community of developers, faster than any other blockchain platform. More than any other, Ethereum is a developer’s blockchain, built by developers for developers. A developer familiar with JavaScript applications can drop into Ethereum and start producing working code very quickly. For the first few years of Ethereum’s life, it was common to see T-shirts announcing that you can create a token in just five lines of code. Of course, this is a double-edged sword. It’s easy to write code, but it’s very hard to write good and secure code.
+이더리움은 블록체인에 대해 배울 수 있는 훌륭한 플랫폼으로 다른 어떤 블록체인 플랫폼보다 빠른 대규모 개발자 커뮤니티를 구축하고 있다. 무엇보다 이더리움은 개발자들이 개발자들을 위해 만든 개발자 블록체인이다. 자바스크립트 애플리케이션에 익숙한 개발자는 이더리움에 드롭하여 작업 코드를 매우 빠르게 생성할 수 있다. 이더리움 생애 첫 몇 년 동안 5줄의 코드만으로 토큰을 만들 수 있다는 것을 알리는 티셔츠를 보는 것이 일반적이었다. 물론, 이것은 양날의 칼이다. 코드를 쓰는 것은 쉽지만, 훌륭하고 안전한 코드를 쓰는 것은 매우 어렵습니다.
 
 ## 이 책은 무엇을 가르치는가  
 What This Book Will Teach You  
