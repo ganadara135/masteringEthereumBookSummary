@@ -300,7 +300,12 @@ Ethereum’s Development Culture
 모든 클라이언트 기능과 이상이 없어야 새로운 변경이 허용된다.  
 따라서 일부가 업그레이드를 동의하지 않아도 그 일부만의 시스템을 별도로 운영될 수 있다.  
 
-In Ethereum, by comparison, the community’s development culture is focused on the future rather than the past. The (not entirely serious) mantra is "move fast and break things." If a change is needed, it is implemented, even if that means invalidating prior assumptions, breaking compatibility, or forcing clients to update. Ethereum’s development culture is characterized by rapid innovation, rapid evolution, and a willingness to deploy forward-looking improvements, even if this is at the expense of some backward compatibility.
+대조적으로 이더리움에서는 과거보다 오히려 미래에 집중하는 커뮤니티 개발 문화가 있다.  
+만트라 정신으로 빠르게 움직이고 휴식을 즐기자가 모토이다.  
+따라서 새 기능이 필요하면, 구현한다.  
+그것이 친화성을 클라이언트 프로그램에 업그레이드를 요구할지라도.
+이더리움 개발 문화는 빠른 혁신과 진화, 진보를 따른다.  
+그것이 백워드 친화성을 파기할지라도.  
 
 What this means to you as a developer is that you must remain flexible and be prepared to rebuild your infrastructure as some of the underlying assumptions change. One of the big challenges facing developers in Ethereum is the inherent contradiction between deploying code to an immutable system and a development platform that is still evolving. You can’t simply "upgrade" your smart contracts. You must be prepared to deploy new ones, migrate users, apps, and funds, and start over.
 
