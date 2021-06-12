@@ -276,16 +276,29 @@ From General-Purpose Blockchains to Decentralized Applications (DApps)
 ## 인터넷의 3번째 시대  
 The Third Age of the Internet  
 
-In 2004 the term "Web 2.0" came to prominence, describing an evolution of the web toward user-generated content, responsive interfaces, and interactivity. Web 2.0 is not a technical specification, but rather a term describing the new focus of web applications.
+사용자 창조 컨텐츠, 반응형 인터페이스, 상호 작용성을 나타내는 웹2.0 이 2004년에 대세가 되었을 당시,  
+웹2.0은 기술적 스펙이 아니였다. 오히려 웹 응용에 집중한 설명이 었다.  
 
-The concept of DApps is meant to take the World Wide Web to its next natural evolutionary stage, introducing decentralization with peer-to-peer protocols into every aspect of a web application. The term used to describe this evolution is web3, meaning the third "version" of the web. First proposed by Dr. Gavin Wood, web3 represents a new vision and focus for web applications: from centrally owned and managed applications, to applications built on decentralized protocols.
+댑이라는 개념도 다음 단계로 진보하는 월드와이드웹을 따르는 것을 의미한다.  
+웹 응용의 다양한 측면에서 P2P 프로토콜을 통해서 비중앙화되는 것을 나타낸다.  
 
-In later chapters we’ll explore the Ethereum web3.js JavaScript library, which bridges JavaScript applications that run in your browser with the Ethereum blockchain. The web3.js library also includes an interface to a P2P storage network called Swarm and a P2P messaging service called Whisper. With these three components included in a JavaScript library running in your web browser, developers have a full application development suite that allows them to build web3 DApps.
+다음 챕터에서 이더리움 web3.js 자바스크립트 라이브러리를 공부할 것이다.  
+web3.js 는 자바스크립트 어플로서 이더리움 블록체인과 웹 브라우저를 연결해준다.  
+또한 p2p 네트워크 저장장치인 Swarm과 P2P 메시지 서비스 Whisper 연결을 지원한다.  
+웹브라우저에서 운영되는 자바스크립트 라이브러리에 포함된 세가지 콤포넌트 함께  
+개발자들이 웹3 댑을 만들도록 풀 웹개발 슈트를 활용할 수 있다.  
 
-Ethereum’s Development Culture
-So far we’ve talked about how Ethereum’s goals and technology differ from those of other blockchains that preceded it, like Bitcoin. Ethereum also has a very different development culture.
+## 이더리움 개발 문화
+Ethereum’s Development Culture  
 
-In Bitcoin, development is guided by conservative principles: all changes are carefully studied to ensure that none of the existing systems are disrupted. For the most part, changes are only implemented if they are backward compatible. Existing clients are allowed to opt-in, but will continue to operate if they decide not to upgrade.
+지금까지 이더리움의 목표와 비트코인과는 다른 특성의 블록체인 기술에 관해서 이야기했다.  
+이더리움은 또한 개발 문화가 다른다.  
+
+비트코인에서 개발은 보수적인 원칙을 따른다.  
+모든 변경은 기존 시스템에 해가되지 않도록 충분히 연구후에 적용된다.  
+또한 모든 변경 내역은 백워드 친화적으로 개발된다.  
+모든 클라이언트 기능과 이상이 없어야 새로운 변경이 허용된다.  
+따라서 일부가 업그레이드를 동의하지 않아도 그 일부만의 시스템을 별도로 운영될 수 있다.  
 
 In Ethereum, by comparison, the community’s development culture is focused on the future rather than the past. The (not entirely serious) mantra is "move fast and break things." If a change is needed, it is implemented, even if that means invalidating prior assumptions, breaking compatibility, or forcing clients to update. Ethereum’s development culture is characterized by rapid innovation, rapid evolution, and a willingness to deploy forward-looking improvements, even if this is at the expense of some backward compatibility.
 
