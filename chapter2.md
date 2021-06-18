@@ -15,21 +15,24 @@
 최소단위 : wei  
 1 ether  =  1 quintillion wei ( 1 * 10^18^  or 1,000,000,000,000,000,000)  
 
-[[ether_denominations]]  
-.Ether denominations and unit names  
-[options="header"] 
-|===  
-| Value (in wei) | Exponent | Common name | SI name 
-| 1 | 1 | wei | Wei 
-| 1,000 | 10^3^ | Babbage | Kilowei or femtoether 
-| 1,000,000 | 10^6^ | Lovelace | Megawei or picoether 
-| 1,000,000,000 | 10^9^ | Shannon | Gigawei or nanoether 
-| 1,000,000,000,000 | 10^12^ | Szabo | Microether or micro 
-| 1,000,000,000,000,000 | 10^15^ | Finney | Milliether or milli 
-| _1,000,000,000,000,000,000_ | _10^18^_ | _Ether_ | _Ether_ 
-| 1,000,000,000,000,000,000,000 | 10^21^ | Grand | Kiloether 
-| 1,000,000,000,000,000,000,000,000 | 10^24^ | | Megaether 
-|=== 
+[ether_denominations] 
+Ether denominations and unit names  
+| Value (in wei) | Exponent | Common name | SI name |  
+|---|---|---|---|  
+| 1 | 1 | wei | Wei |  
+| 1,000 |  10^3^ | Babbage | Kilowei or femtoether |  
+| 1,000,000 | 10^6^ | Lovelace | Megawei or picoether |  
+| 1,000,000,000 | 10^9^ | Shannon | Gigawei or nanoether |  
+| 1,000,000,000,000 | 10^12^ | Szabo | Microether or micro |  
+| 1,000,000,000,000,000 | 10^15^ | Finney | Milliether or milli |  
+| _1,000,000,000,000,000,000_ | _10^18^_ | _Ether_ | _Ether_ |  
+| 1,000,000,000,000,000,000,000 | 10^21^ | Grand | Kiloether |  
+| 1,000,000,000,000,000,000,000,000 | {10^24} | | Megaether |  
+
+
+## Choosing an Ethereum Wallet
+
+
 
 
 
