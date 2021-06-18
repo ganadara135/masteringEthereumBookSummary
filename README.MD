@@ -15,10 +15,10 @@ Andreas 는 Mastering Bitcoin (O’Reilly) 저자임 <br>
 # Chapters
 Preface: '[Preface](https://github.com/ethereumbook/ethereumbook/blob/develop/preface.asciidoc)'
 
-+ Chapter 1: '[What Is Ethereum](https://github.com/ganadara135/masteringEthereumBookSummary/blob/main/chapter1.md)' 호연
-+ Chapter 2: ['Ethereum Basics']() 호연
-+ Chapter 3: ['Ethereum Clients']() 규관
-+ Chapter 4: ['Cryptography']() 다혜
++ Chapter 1: '[What Is Ethereum](https://github.com/ganadara135/masteringEthereumBookSummary/blob/main/chapter1.md)' 
++ Chapter 2: '[Ethereum Basics](https://github.com/ganadara135/masteringEthereumBookSummary/blob/main/chapter2.md)'
++ Chapter 3: ['Ethereum Clients']() 
++ Chapter 4: ['Cryptography']() 
 + Chapter 5: ['Wallets']()
 + Chapter 6: ['Transactions']()
 + Chapter 7: ['Smart Contracts and Solidity']()
