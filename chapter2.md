@@ -4,9 +4,17 @@
 + 트랜잭션 만드는법
 + 기초적인 스마트컨트랙트 사용법
 
-## Ether Currency Units(이더 화폐 단위)
-이더 화폐 단위는 ether
-표기는 ETH
-심볼은 Ξ
-심볼 U+2666
+## Ether Currency Units
+이더 화폐 단위
+화폐 단위: ether  
+표기 :  ETH  
+심볼 :  &#926;1  (Unicode U+039E)  
+심볼 :  &#9830;1 (Unicode U+2666)  
+
+최소단위 : wei
+1 ether  =  1 quintillion wei ( 1 x 10^18^ or 1,000,000,000,000,000,000)
+
+
+
+
 
