@@ -86,7 +86,8 @@ Ether denominations and unit names
 다운로드 메타마스크 : [https://metamask.io](https://metamask.io)  
 
 ### - Creating a Wallet
-
+아래그림처럼 비밀번호를 생성한다
+[ㅇㅇ](https://github.com/ethereumbook/ethereumbook/raw/develop/images/metamask_password.png)
 
 
 
