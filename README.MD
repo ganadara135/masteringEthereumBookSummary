@@ -17,7 +17,7 @@ Preface: '[Preface](https://github.com/ethereumbook/ethereumbook/blob/develop/pr
 
 + Chapter 1: '[What Is Ethereum](https://github.com/ganadara135/masteringEthereumBookSummary/blob/main/chapter1.md)' 
 + Chapter 2: '[Ethereum Basics](https://github.com/ganadara135/masteringEthereumBookSummary/blob/main/chapter2.md)'
-+ Chapter 3: ['Ethereum Clients']() 
++ Chapter 3: '[Ethereum Clients](https://github.com/ganadara135/masteringEthereumBookSummary/blob/main/chapter3.md)' 
 + Chapter 4: ['Cryptography']() 
 + Chapter 5: ['Wallets']()
 + Chapter 6: ['Transactions']()
