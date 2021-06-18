@@ -98,6 +98,58 @@ Ether denominations and unit names
 ![생성된지갑](https://github.com/ethereumbook/ethereumbook/raw/develop/images/metamask_account.png)  
 
 
+## Switching Networks
+메타마스크는 디폴트로 메인넷으로 세팅됨  
+추가로 테스트넷과 로컬넷을 설정할 수 있음  
+### - Main Ethereum Network
+리얼 네크워크  
+### - Ropsten Test Network  
+퍼블릭 테스트 네트워크이므로 이더는 실제 가치 없음  
+### - Kovan Test Network
+퍼블릭 테스트 네트워크이고 채굴 알고리즘을 Proof of Authority(PoA) 사용  
+### - Rinkeby Tes Network
+Kovan Test Network 같은 알고리즘 사용  
+### - Localhost 8545 
+로컬호스트에서 운영되는 노드에 연결  
+노드는 메인, 테스트넷, 프라이빗 테스트넷일 수 있음  
+### - Custom RPC
+Geth 친화적인 Remote Procedure Call 인터페이스를 사용해서 메타마스크를 노드와 연결해줌  
+
+
+## Getting Some Test Ether
+지갑 사용 경험을 위해서 이더가 필요  
+따라서 테스트 이더를 얻는다  
+메타마스크를 Ropsten Test Network 로 변경  
+클릭 Deposit -> 클릭 Ropsten Test Fauchet.  
+메타마스크가 아래 처럼 새로운 웹페이지 오픈함  
+![faucet](https://github.com/ethereumbook/ethereumbook/raw/develop/images/metamask_ropsten_faucet.png )  
+위 화면에서 처럼 메타마스크 이더리움 지갑 주소가 이미 웹 페이지에 나타남  
+
+- 그린색의 "request 1 ether from faucet" 클릭 함  
+- 잠시후에 사용자의 메타마스크 지갑에 1 ETH 가 나타남  
+- 트랜잭션 ID 를 클릭하면 block explorer 페이지가 나타남  
+- 해당 웹 페이지에선 트랜잭션 정보들을 볼 수 있음  
+![Etherscan](https://github.com/ethereumbook/ethereumbook/raw/develop/images/ropsten_block_explorer.png)  
+- 트랜잭션 이력은 누가 볼 수 있음  
+
+
+## Sending Ether from MetaMask
+Ropsten Test Faucet 페이지에서 "Donte" 통해서 1 Eth을 보낸다  
+메타마스크를 통해서 1 ether 를 보내면 아래와 같은 에러 발생  
+![가스부족](https://github.com/ethereumbook/ethereumbook/raw/develop/images/send_to_faucet.png )  
+1 Eth 를 그대로 보내니 가스가 부족하다 나타남  
+모든 이더리움 트랙잭션은 비용을 요구, 즉 가스  
+채굴자가 트랙젹션을 검증하는데 가스비 사용  
+가스를 이더로 지급함  
+기스비가 DoS 공격 방어함  
+트랜젹션 전송시 메타마스크가 최근에 성공한 가스비 평균 계산함, 예 3 gwei.    
+가스 제한은 최대 21,000 gas units 임  
+따라서 최대 ETH 는 3 x 21,000 gwei = 0.000063 ETH  
+전체 1 트랜잭션 비용은 1.000063 ETH  
+따라서 거부된 것임  
+
+
+
 
 
 
