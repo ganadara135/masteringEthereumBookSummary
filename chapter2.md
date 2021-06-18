@@ -86,11 +86,16 @@ Ether denominations and unit names
 다운로드 메타마스크 : [https://metamask.io](https://metamask.io)  
 
 ### - Creating a Wallet
-아래그림처럼 비밀번호를 생성한다
-[ㅇㅇ](https://github.com/ethereumbook/ethereumbook/raw/develop/images/metamask_password.png)
+1. 아래그림처럼 비밀번호를 생성한다  
+![alt text](https://github.com/ethereumbook/ethereumbook/raw/develop/images/metamask_password.png
+ "메타마스크")  
+ 
+2. Mnemonic 키 생성, 12개 영단어로 구성됨  
+   본 단어를 종이에 적어서 안전한 곳에 보관  
+ ![mnemonic](https://github.com/ethereumbook/ethereumbook/raw/develop/images/metamask_mnemonic.png "니모닉키")
 
-
-
+3. 최종 생성된 지갑 화면  
+![생성된지갑](https://github.com/ethereumbook/ethereumbook/raw/develop/images/metamask_account.png)  
 
 
 
