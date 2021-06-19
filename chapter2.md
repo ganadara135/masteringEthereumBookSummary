@@ -149,7 +149,90 @@ Ropsten Test Faucet 페이지에서 "Donte" 통해서 1 Eth을 보낸다
 따라서 거부된 것임  
 
 
+## Exploring the Transaction History of an Address
+
+![주소탐색](https://github.com/ethereumbook/ethereumbook/raw/develop/images/metamask_account_context_menu.png )  
+
+![이더스캔](https://github.com/ethereumbook/ethereumbook/raw/develop/images/block_explorer_account_history.png )  
 
 
+## Introducing the World Computer
+스마트컨트랙트 사용법과 EVM 소개  
+EVM은 글로벌 싱글톤이다  
+글로벌 싱글톤은 글로벌 전역변수임  
+
+
+## Externally Owned Accounts(EOAs) and Contracts
+EOA란 메타마스크 지갑에서 만든 계좌임
+즉, 비밀키를 통해 계정에 대한 전권을 가짐  
+컨트랙트 계좌는 스마트컨트택트 코드로 운영되는 계좌임  
+컨트랙트 계좌는 비밀키가 없고, 컨트랙트 코드에 의해 운영됨  
+컨트랙트는 EOA 와 같이 주소를 갖고 있음  
+컨트랙트도 EOA 처럼 이더를 주고 받을 수 있으나,  
+트랜잭션 도착지가 컨트랙트 주소임  
+컨트랙트 트랜잭션은 이더 이외에 특정 함수와 파라미터 데이터도 갖고 있음  
+컨트랙트 계정은 비밀키가 없으므로 트랜잭션 초기화 할 수 없음  
+EOA가 트랜잭션을 초기화하고 컨트랙트는 다른 컨트랙트 호출에 의한 트랜잭션에 반응할 수 있음  
+예로서 EOA가 멀티시그니처 스마트컨트랙트 지갑에 이더를 다른 주소로 보내도록 할 수 있음  
+
+
+## A Simple Contract: A Test Ether Faucet
+Ethereum 은 여러 상위 레발 언어가 있음  
+Solidity 는 그 중에 하나이고, Gavin Wood 가 만듦  
+
+```
+// SPDX-License-Identifier: CC-BY-SA-4.0
+
+// Version of Solidity compiler this program was written for
+pragma solidity 0.6.4;
+
+// Our first contract is a faucet!
+contract Faucet {
+    // Accept any incoming amount  // 컨트랙트를 트리거 시키는 함수는 이름 없음
+    // external 은 외부에 공개된 함수 의미, payable 은 이더만 데이터만 통과가능 
+    receive() external payable {}
+
+    // Give out ether to anyone who asks
+    function withdraw(uint withdraw_amount) public {
+        // Limit withdrawal amount
+        require(withdraw_amount <= 100000000000000000);
+
+        // Send the amount to the address that requested it
+        // transfer 는 내장 함수임
+        // 읽기는 backward 롤 이해하라
+        msg.sender.transfer(withdraw_amount);
+    }
+}
+```
+
+## Compiling the Faucet Contract
+위 코드를 컴파일해서 EVM bytecode 생성됨  
+Remix IDE 에서 컴파일 [https://remix.ethereum.org](https://remix.ethereum.org)  
+
+첫 리믹스화면에서 보이는 샘플 컨트랙트 ballot.sol 삭제  
+![삭제](https://github.com/ethereumbook/ethereumbook/raw/develop/images/remix_close_tab.png )  
+
+새로운 탭생성하기 위해서 십자 모양 클릭  
+![십자](https://github.com/ethereumbook/ethereumbook/raw/develop/images/remix_toolbar.png )  
+
+아래 처럼 우리의 코드르 복사 붙여넣기 함  
+![코드](https://github.com/ethereumbook/ethereumbook/raw/develop/images/remix_faucet_load.png )  
+컴파일 탭에서 완료여부 확인  
+![컴파일](https://github.com/ethereumbook/ethereumbook/raw/develop/images/remix_compile.png )  
+
+
+## Creating the Contract on the Blockchain
+
+
+
+## Interacting with the Contract
+
+### Viewing the Contract Address in a Block Explorer
+
+## Funding the Contract
+
+## Withdrawing from Our Contract
+
+## Conclusions
 
 
