@@ -160,3 +160,62 @@ y = 83b5c38e5e2b0c8529d7fa3f64d46daa1ece2d9ac14cab9477d042c84c32ccd0
 이더리움에서 공개키는 130 hexadecimal 문자열임(65 바이트)  
 elliptic curve 위에서 포인트를 구분할 수 있는 4가지 가능한 접미사 있음  
 
+[Serialized EC public key prefixed]
+| Prefix | Meaming | Length(bytes) |  
+|---|---|---|
+| 0x00 | Point at infinity | 1 |  
+| 0x04 | Uncompressed point | 65 |
+| 0x02 | Compressed point with even y | 33 |
+| 0x03 | Compressed point with odd y | 33 |
+
+이더리움은 uncompressed public keys 만 사용 04(hex)  
+공개키는 x , y 좌표를 연결함 아래 처럼  
+```
+04 + x-coordinate (32 bytes/64 hex) + y-coordinate (32 bytes/64 hex)
+```
+따라서 최종 모습은 아래와 같음  
+```
+046e145ccef1033dea239875dd00dfb4fee6e3348b84985c92f103444683bae07b83b5c38e5e2b0c8529d7fa3f64d46daa1ece2d9ac14cab9477d042c84c32ccd0
+```
+
+## Elliptic Curve Libraries
+- OpenSSL
+- libsecp256k1
+
+
+## Cryptographic Hash Functions
+이더리움 공개키를 주소로 바꾸는데 사용  
+데이터 증명을 위한 디지털 핑거프린트 만드는데 사용  
+임의 크기의 데이터를 고정된 크기의 데이터로 만들어줌  
+입력하는 데이터를 pre-image, 또는 메시지라고 하고  
+출력 데이터를 해시 라고 함  
+
+암호 해시 함수는 단방향 함수이다  
+무한정 대입만으로 역추적할 수 있는 방법 밖에 없으나,  
+그 가능성이 무한정에 가깝다.   
+맞는 경우에는 해시 충돌이 발생했다고  
+many to one 함수임  
+충돌이 적을 수록 좋음 해시 함수 임  
+
+#### 암호 해시 함수의 특징  
++ 결정론적 : 같은 입력 데이터는 같은 해시 결과로 나와야 함
++ 검증가능성 : 해시 메시지 게산이 효율적임(선형 복잡동)  
++ 비상호관련 : 추측가능하지 않게 
++ 비가역적 : 해시 값으로 원본 메시지 추적 불가  
++ 출돌 회피 : 한 해시값이 복수의 입력 값중에 나타나지 않아야 함  
+
+
+사용영역
+- 데이터 핑거프린팅
+- 메시지 무결성(에러 복구)
+- 작업증명
+- 인증(패스워드 해싱 과 키 확장)
+- 유사 랜덤 넘버 생성
+- 메시지 전송
+- 고유한 번호
+
+#### 이더리움 암호 해시 함수 : Keccak-256
+NIST 에서 만든 SHA-3 대신 이더리움 재단에서 Keccak 알고리즘을 구현함  
+SHA-3 에는 난수 생성 알고리즘에 백도엉가 심어져 있음  
+
+## Which Hash Function Am I Using?
