@@ -95,13 +95,33 @@ K 포인트를 얻기위해서 k 정수를 포인트 G에 곱할 수 있으나, 
 ## Elliptic Curve Cryptography 설명
 elliptic curve 암호기술은 이산대수 문제임(discrete logarithm)  
 elliptic curve 포인트 위에서 덧셈과 곱셈으로 표현됨  
-[elliptic curve](https://github.com/ethereumbook/ethereumbook/raw/develop/images/simple_elliptic_curve.png)  
+![elliptic curve](https://github.com/ethereumbook/ethereumbook/raw/develop/images/simple_elliptic_curve.png)  
 
 이더리움은 특별한 elliptic curve 와 수학 상수 집합을 사용함  
+NIST 에서 표준화한 secp256k1 을 사용  
+secp256k1 curve 는 아래 방정식으로 정의됨  
 
+y 2 = ( x 3 + 7 ) over ( 𝔽 p )  
+or:
 
+y 2 mod p = ( x 3 + 7 ) mod p
 
+The mod p (modulo prime number p) indicates that this curve is over a finite field of prime order p, also written as \(\( \mathbb{F}_p \)\), where p = 2256 – 232 – 29 – 28 – 27 – 26 – 24 – 1, which is a very large prime number.  
 
+실수 위에서가 아니라 소수 위수의 유한 필드 위에서 해당 곡선이 정의 됨  
+이것은 2차원 위에 뿌려진 도트 패턴 같아서 시각화하기가 어렵다.  
+하지만 수학적으로는 실수 위에 elliptic curve 와 같다  
+
+아래 그림은 소수 위수 17 에 대한 도면임  
+![Elliptic curve cryptography: visualizing an elliptic curve over F(p), with p=17
+](https://github.com/ethereumbook/ethereumbook/raw/develop/images/ec_over_small_prime_field.png)  
+
+아래는 포인트 Q 임, secp256k1 curve 위에서 포인트 좌표(x, y) 의해 만들어짐  
+```
+Q =
+(49790390825249384486033144355916864607616083520101638681403973749255924539515,
+59574132161899900045862086493921015780032175291755807399284007721050341297360)
+```
 
 
 
