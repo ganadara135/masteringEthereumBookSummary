@@ -79,6 +79,26 @@ Elliptic curve 방정식을 만족하는 x, y 좌표의 집합임
 ```
 K = k * G
 ```
+k 는 비밀키이고, G 는 상수 포인트(생성 포인트), K 는 공개키  
+ *  는 elliptic curve 곰셈 연산자 임  
+elliptic curve 곰셈은 표준 곰셈과 다르다  
+단순히 표준 곱셈의 기능적 속성만 공유함  
+elliptic curve 역 연산은 이산대수(discrete logarithm) 찾는 것과 같음  
+
+elliptic curve 산수는 정규 정수 산술과 다르다
+K 포인트를 얻기위해서 k 정수를 포인트 G에 곱할 수 있으나, 나눌 수 없음  
+따라서 비밀키 k 를 얻기 위해서 포인트 G 에 의해 공개키 K 를 나눌 수 없음  
+이것이 단방향 함수임  
+곱셈은 한 방향으로 쉽계 할 수 있고, 나눗셈 역 방향은 불가 함  
+
+
+## Elliptic Curve Cryptography 설명
+elliptic curve 암호기술은 이산대수 문제임(discrete logarithm)  
+elliptic curve 포인트 위에서 덧셈과 곱셈으로 표현됨  
+[elliptic curve](https://github.com/ethereumbook/ethereumbook/raw/develop/images/simple_elliptic_curve.png)  
+
+이더리움은 특별한 elliptic curve 와 수학 상수 집합을 사용함  
+
 
 
 
