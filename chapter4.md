@@ -123,5 +123,40 @@ Q =
 59574132161899900045862086493921015780032175291755807399284007721050341297360)
 ```
 
+## Elliptic Curve Arithmetic Operations
+Elliptic curve 위에 P1, P2  포인트가 있으면, P3 도 P3 = P1 + P2 정의 가능  
+기하학적으로 P3 는 P1 과 P2를 사이에 라인을 그려서 계산가능  
+이 라인은 정확하게 한쪽의 덥셈 장소를 곡선을 교차함  
 
+[타원곡선 연산 설명자료 링크](https://m.blog.naver.com/aepkoreanet/221178375642)
+
+## Generating a Public Key
+Private-Key k :   P 보다 적은 소수(Prime)로, 난수생성기로 생성합니다.
+
+Public-Key K :  “Q(x , y) = k x G(x0 , y0)” 즉 타원곡선의 “더하기 연산”으로 만들어 집니다.
+
+“k x G” 란 “G를 k번 더한 값”을 의미 합니다( K = G + G + …….G + G +G )
+
+G는 이미 알려져 있고, K는 키 생성후 공개되어 집니다. 하지만, G 와 K를 안다고 해서, k 값을 유추해 내기가 굉장히 어렵습니다. 이것을 ECDLP(Elliptic Curve Discrete Logarithm Problem)라고 부르며, 이러한 속성으로 인해 공개키 암호기술로 사용되어지게 되었습니다.
+
+##### G 부분을 예측할 수 없는 난수를 넣어 줌으로서 역연산을 방지
+
+공개키 계산에 비밀키 적용 예
+```
+K = f8f8a2f43c8376ccb0871305060d7b27b0554d2cc72bccf41b2705608452f315 * G
+```
+
+암호기술 라이브러리에서는 아래와 같은 함수형식으로 값을 삽입  
+x = k;   y = G
+```
+K = (x, y)
+```
+
+```
+x = 6e145ccef1033dea239875dd00dfb4fee6e3348b84985c92f103444683bae07b
+y = 83b5c38e5e2b0c8529d7fa3f64d46daa1ece2d9ac14cab9477d042c84c32ccd0
+```
+
+이더리움에서 공개키는 130 hexadecimal 문자열임(65 바이트)  
+elliptic curve 위에서 포인트를 구분할 수 있는 4가지 가능한 접미사 있음  
 
