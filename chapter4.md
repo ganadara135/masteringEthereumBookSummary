@@ -261,3 +261,84 @@ Keccak256(K) = 2a5bc342ed616b5ba5732269001d3f1ef827552ae1114027bd3ecf1f086ba0f9
 ```
 0x001d3f1ef827552ae1114027bd3ecf1f086ba0f9
 ```
+
+## 이더리움 주소 포맷
+이더리움 주소는 공개키를 Keccak-256 해시 결과값의 마지막 20 바이트로부터  
+추출하는 헤사 숫자와 식별자임  
+비트코인 주소는 사용자 미스 입력을 방지코자  
+체크섬 내부 함수가 사용자 인터페이스에 포함돼 있음  
+이더리움 주소는 체크섬 없는 원형의 해사값임  
+
+이더리움 네임 서비스를 통해서 체크섬 기능을 제공하려고 했으나 계획보다 느림  
+
+## Inter Exchange Client Address Protocol
+ICAP 국제 은행 계좌 넘버(IBAN) 인코딩 프로토콜과 일부 친화적인 이더리움 주소 인코딩임  
+ICAP 주소는 이더리움 주소를 인코드 할 수 있고  
+이더리움 이름 레지스트리에 등록된 공통 이름도 인코드 가능함  
+
+IBAN 은 은행 계좌번호를 구별하는 국제 표준임  
+IBAN 은 중앙회돼 있고 강한 규제를 받음  
+ICAP 은 비중앙회돼있고, 이더리움 주소 구현에 적합함  
+
+IBAN 은 34 알파벳숫자형 문자열로 구성되고  
+국가코드, 체크섬, 뱅크 계좌 번호 식별자로 구성됨  
+
+ICAP 은 IBAN의 구조를 착용함  
+"XE" 는 이더리움을 상징  
+그리고 2 문자 체크섬과 계좌 식별자로 3가지가 가능함  
+#### Direct 
+- IBAN 과 친화적임
+- Big-endian base 36 integer
+- 30 알파벳숫자형 문자열
+- 이더리움 주소의 155 least significant bits
+- XE60HAMICDXSV5QXVJA7TJW47Q9CHWKJD (33 characters long)
+#### Basic
+- Direct 인코딩과 대부분 같고
+- 31 문자열 길이만 다름
+- IBAN 필드 변화와 비 친화적임
+- XE18CHDJBPLTBCJ03FE9O2NS0BPOJVQCU2P (35 characters long).
+#### Indirect
+- 이름 레지스트리 제공자를 통해서 이더리움 주소와 연결된 식별자 인코딩함
+- 16 알파벳숫자형을 사용
+- 자산 식별자 ( ETH), 네임 서비스 (XREG)
+- 9 문자, human-readable name (KITTYCATS)
+- XE##ETHXREGKITTYCATS (20 characters long)
+- 위에 ## 은 체크섬 문자로 바뀜
+
+helpeth command-line 툴 설치
+```
+$ npm install -g helpth
+```
+
+아래처럼 ICAP 주수를 비밀키를 사용해서 생성함  
+```
+$ helpeth keyDetails \
+  -p 0xf8f8a2f43c8376ccb0871305060d7b27b0554d2cc72bccf41b2705608452f315
+
+Address: 0x001d3f1ef827552ae1114027bd3ecf1f086ba0f9
+ICAP: XE60 HAMI CDXS V5QX VJA7 TJW4 7Q9C HWKJ D
+Public key: 0x6e145ccef1033dea239875dd00dfb4fee6e3348b84985c92f103444683bae07b...
+```
+
+### Hex Encoding with Checksum in Capitalization (EIP-55)
+EIP-55 은 백워드 친화적인 체크섬임  
+이더리움 주소는 case-insensitive  
+모든 지갑은 대소문자 구분없이 이더리움 주소를 처리하게 구현됨  
+
+주소상의 알파벳형 문자를 대문자함으로써    
+읽기나 타이핑 실수를 대응코자 주소 무결성 보호에 체크섬을 심는다  
+대부분 지갑이 EIP-55 체크섬을 지원안함  
+따라서 주소가 혼합 대문자를 포함하면 무시함  
+하지만 지원하는 지갑은 정확도를 99.986% 유지함  
+
+혼합 문자형 인코딩  
+```
+0x001d3f1ef827552ae1114027bd3ecf1f086ba0f9
+```
+EIP-55 혼합 대문자 체크섬 결과
+```
+0x001d3F1ef827552Ae1114027BD3ECF1f086bA0F9
+```
+
+위 두 결과의 차이는  
+알파멧 (A-F) 문자만 헤사형 인코딩 알파벳만 대문자이고, 나머진 소문자  
