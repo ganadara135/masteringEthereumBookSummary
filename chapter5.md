@@ -28,6 +28,15 @@
 
 
 ## Generating mnemonic words
+[Mnemonic codes: entropy and word length]
+| Entropy  (bits) | Checksum  (bits) | Entropy + checksum  (bits) | Mnemonic length  (word) |    
+|---|---|---|--|  
+| 128 | 4 | 132 | 12 |    
+| 160 | 5 | 165 | 15 |  
+| 192 | 6 | 198 | 18 |  
+| 224 | 7 | 231 | 21 |  
+| 256 | 8 | 264 | 24 |  
+
 
 
 
