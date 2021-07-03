@@ -37,9 +37,9 @@
 | 224 | 7 | 231 | 21 |  
 | 256 | 8 | 264 | 24 |  
 
+![이미지1](https://github.com/ethereumbook/ethereumbook/raw/develop/images/bip39-part1.png)
 
-
-
+![이미지2](https://github.com/ethereumbook/ethereumbook/raw/develop/images/bip39-part2.png)
 ## From mnemonic to seed
 
 
