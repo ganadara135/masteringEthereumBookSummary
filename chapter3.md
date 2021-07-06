@@ -60,3 +60,10 @@
 ## The JSON-RPC Interface
 # Remote Ethereum Clients
 # Mobile (Smartphone) Wallets
+# Browser Wallets
+## MetaMask
+## Jaxx
+## MyEtherWallet (MEW)
+## MyCrypto
+## Mist (Deprecated)
+# Conclusions
