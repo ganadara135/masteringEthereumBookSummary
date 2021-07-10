@@ -327,7 +327,8 @@ Why Learn Ethereum?
 ## 이 책은 무엇을 가르치는가  
 What This Book Will Teach You  
 
-This book dives into Ethereum and examines every component. You will start with a simple transaction, dissect how it works, build a simple contract, make it better, and follow its journey through the Ethereum system.
-
-You will learn not only how to use Ethereum—how it works—but also why it is designed the way it is. You will be able to understand how each of the pieces works, and how they fit together and why.
+이 책은 이론 먼저 논하고, 실습을 수행함
+간단한 트랜잭션을 만들고, 어떻게 구성되는 지 분석한다.
+또한, 간단한 컨트랙트를 만들고, 살을 붙여가면 코드를 키운다
+어떻게 이더리움이 작동하고, 설계되었는지 알 수 있을 것임
 
