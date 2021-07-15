@@ -61,7 +61,7 @@ ___
 ___
 
 간단히 말해서 nonce 는 기원 주소의 속성임  
-즉, 보내는 주소의 컨텍스트에서 의미를 갖음  
+즉, 보내는 주소의 컨텍스트에서 의미를 가짐  
 nonce 는 블록체인의 계정 상태의 일부로서 명확히 저장되지 않음  
 주소에서 기원한 확정된 트랜잭션 수를 계산해서 유동적으로 계산함  
 
@@ -117,11 +117,73 @@ Ropsten testnet 위에서 작동하는 Geth 에서 자바스크립트 콘솔을 
 |--|--|
 |Tip|Nonce 는 0 에서 시작하는 카운터임. 따라서 첫번째 트랜잭션은 nonce 0 임  현재 트랜잭션 nonce 가 40 이라면, nonce 0 에서 39 까지 있음을 의미함|
 
+지갑 소프트웨어가 각 주소의 nonce를 추적함  
+구체적으로는 아래와 같다  
+새 트랜잭션을 생성하면 연속적인 다음 nonce를 할당함  
+하지만, 해당 nonce 는 최종 확인이 끝난게 아님  
+|  |  |
+|--|--|
+|Warning|대기하고 있는 트랜잭션을 카운팅하는 getTransactionCount 함수를 사용할 때 주의 필요, 특히 연속적으로 트랜잭션을 보낼때 주의하라| 
 
+위와 같은 우려 사항을 예제를 확인해 보자  
+```
+> web3.eth.getTransactionCount("0x9e713963a92c02317a681b9bb3065a8249de124f", \
+"pending")
+40
+> web3.eth.sendTransaction({from: web3.eth.accounts[0], to: \
+"0xB0920c523d582040f2BCB1bD7FB1c7C1ECEbdB34", value: web3.utils.toWei(0.01, "ether")});
+> web3.eth.getTransactionCount("0x9e713963a92c02317a681b9bb3065a8249de124f", \
+"pending")
+41
+> web3.eth.sendTransaction({from: web3.eth.accounts[0], to: \
+"0xB0920c523d582040f2BCB1bD7FB1c7C1ECEbdB34", value: web3.utils.toWei(0.01, "ether")});
+> web3.eth.getTransactionCount("0x9e713963a92c02317a681b9bb3065a8249de124f", \
+"pending")
+41
+> web3.eth.sendTransaction({from: web3.eth.accounts[0], to: \
+"0xB0920c523d582040f2BCB1bD7FB1c7C1ECEbdB34", value: web3.utils.toWei(0.01, "ether")});
+> web3.eth.getTransactionCount("0x9e713963a92c02317a681b9bb3065a8249de124f", \
+"pending")
+41
+```
+우와같이 첫 트랜잭션이 카운트가 41 이고, 대기중(pending) 임을 보여준다  
+3개의 트랜잭션을 연속적으로 빠르게 보내면, getTransactionCount 는  해당 트랜잭션들을 카운트하조 못한다.  
+따라서 대기중 트랜잭션이 있을 경우에는 주의가 필요함  
+
+트랜잭션을 직접 작성하는 어플을 만든다면,  단순히 getTransactionCount 에만 의지하지 말라  
+대기중(pending) 이고 확인된 카운트가 같을때의 getTransactionCount 의 결과를 nonce 카운트로 사용할 수 있음  
+따라서 모든 트랜잭션이 확인될때까지 어플에서는 nonce 를 추적해야 함  
+
+Parity's JSON RPC 인터페이스는 parity_nextNonce 함수를 제공  
+위 함수는 연속적인 트랜잭션 전송과 상관없이 정확한 nonce 결과를 전달함  
+```
+$ curl --data '{"method":"parity_nextNonce", \
+  "params":["0x9e713963a92c02317a681b9bb3065a8249de124f"],\
+  "id":1,"jsonrpc":"2.0"}' -H "Content-Type: application/json" -X POST \
+  localhost:8545
+
+{"jsonrpc":"2.0","result":"0x32","id":1}
+```
 
 ## Gaps in Nonces, Duplicate Nonces, and Confirmation
+직접적으로 트랜잭션 생성해야 한다면 nonce 추적이 중요함  
+특히 복수의 독립적인 프로세스를 동시적으로 처리해야 하다면 특히 중요함  
+
+이더리움 네트워크는 nonce 를 기초로하여서 연속적으로 트랜잭션을 처리함  
+만약 nonce 0 번으로 트랜잭션을 전송하고, 바로 nonce 2번으로 트랜잭션을 또 전송하면  
+두번째 트랜잭션을 블록에 포함되지 않음  
+해당 트랜잭션은 mempool 에 저장될 것이다.  
+그리고 이더리움 네트워크에선 분실된 nonce 가 나타날 때까지 기다릴 것임 
+모든 노드들은 분실된 nonce 가 단순히 딜레이 되거나 시퀀스가 안 맞았다고 여길 것임  
+
+만약 그 시점에 분실된 nonce 1 번의 트랜잭션을 보내면, nonce 1과 2번의 트랜잭션이 처리될 것임  
+일단 그 갭이 채워지면, 네트워크는 mempool 에 가지고 있던 시퀀스가 안 맞는 트랜잭션을 채굴할 수 있음  
+
+하지만 트랜잭션을 재호출(recall)은 가능하지 않음  
+한편 nonce 가 복제되여 겹치게 됩다면, 아주 랜덤하게 하나는 처리되고, 하나느 거부될 것임  
 
 ## Concurrency, Transaction Origination, and Nonces
+Concurrency
 
 
 # Transaction Gas
