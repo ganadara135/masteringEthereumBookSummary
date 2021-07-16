@@ -112,6 +112,7 @@ Ropsten testnet 위에서 작동하는 Geth 에서 자바스크립트 콘솔을 
 ```
 >web3.eth.getTransactionCount("0x9e713963a92c02317a681b9bb3065a8249de124f")
 40
+a^10  = 테스트
 ```
 |  |  |
 |--|--|
