@@ -111,5 +111,100 @@ Solidity 는 명령형 언어이다.
 본 과정에서는 Solidity 를 다룰 것임  
 
 # Building a Smart Contract with Solidity
+Dr. Gavin Wood 가 Solidity 를 만들었다. 현재는 GitHub 에서 독립적으로 유지 관리되고 있음  
+Solc 가 Solidity 의 메인 상품인 컴파일러임.  
+이더리움 스마트 컨트랙트를 위한 ABI 가 본 챕터의 메인 주제임  
+Solidity 컴파일러 각 버전이 일치해야 Solidity 언어에 각 버전에 맞게 컴파일함  
+# Selecting a Version of Solidity
+Solidity 도 Semantic versioning 규칙을 따른다.  
+따라서 특정 버전 넘버가 3가지 숫자로 구분된다: MAJOR.MINOR.PATCH.  
+MAJOR 숫자는 과거버전 비친화적이고 MINOR 는 과거버전 친화적이고 주요 기능 추가할 때 사용한다. PATCH 숫자는 과거버전 친화적이고 버그 수정에 사용함.  
+
+Solidity에서는 버전이 0.6.4. 이라고 하면, MAJOR VERSION 6 이고 MINOR VERSION 은 4 이다.  
+
+Solidity 는 pragma 선언문을 가질 수 있음  
+pragma 선언문은 최소에서 최대 지원하는 Solidity 버전을 표기할 수 있음  
+
+## Download and Install
+Ubuntu/Debian 운영 체제에서는 최신 릴리즈 버전을 apk 패키지 관리자로 설치할 수 있음  
+```
+$ sudo add-apt-repository ppa:ethereum/ethereum
+$ sudo apt update
+$ sudo apt install solc
+```
+
+solc 가 설치되었다면 아래과 같이 버전을 체크할 수 있음  
+```
+$ solc --version
+solc, the solidity compiler commandline interface
+Version: 0.6.4+commit.1dca32f3.Linux.g++
+```
+
+## Development Environment
+어떤 텍스트 에디터가 사용 가능하고 solc 를 커맨트 라인으로 실행할 수 있음  
+또한 Emacs, Vim, Atom 같은 전용 에디터도 사용 가능  
+웹 기반의 개발 환경도 있음: Remix IDE, EthFiddle  
+
+## Writing a Simple Solidity Program
+아래 링크주소에서 Faucet.sol  을 사용하자  
+
+## Compiling with the Solidity Compiler (solc)
+Solidity 컴파일러를 커맨드 라인을 사용해서 아래와 같이 직접적으로 컴파일할 수 있음  
+```
+$ solc --optimize --bin Faucet.sol
+======= Faucet.sol:Faucet =======
+Binary:
+608060405234801561001057600080fd5b5060cc8061001f6000396000f3fe6080604052600436106
+01f5760003560e01c80632e1a7d4d14602a576025565b36602557005b600080fd5b34801560355760
+0080fd5b50605060048036036020811015604a57600080fd5b50356052565b005b67016345785d8a0
+000811115606657600080fd5b604051339082156108fc029083906000818181858888f19350505050
+1580156092573d6000803e3d6000fd5b505056fea26469706673582212205cf23994b22f7ba19eee5
+6c77b5fb127bceec1276b6f76ca71b5f95330ce598564736f6c63430006040033
+```
+위 결과는 hex 형 직렬화된 이진수이고 이더리움 블록체인에 제출할 수 있음  
+
+# The Ethereum Contract ABI
+Application binary interface 는 두 프로그램 모듈간의 인터페이스임.  
+주로 운영체제와 프로그램사이에 사용됨  
+ABI 는 어떻게 데이터 구조와 함수가 머신 코드의 의해서 접근할 수 있는지 정의함  
+API 는 더 높은 레벨에서 인간이 읽을수 있는 형태인 소스 코드에서 사용함  
+ABI 는 머신 코드에서 데이터를 인코딩하고 디코딩하는 방식임  
+
+ABI 는 EVM를 위해서 컨트랙트 콜을 인코드하기위해 사용하거나, 트랜잭션 밖에서 데이터를 읽을 때 사용됨  
+ABI 는 목적은 컨트랙트안에서 호출되어야할 함수를 정의하고,  
+어떻게 각 함수가 인자를 받아드리고, 결과를 리턴하지는 기술함  
+
+컨트랙트 ABI 는 JSON 배열 형식으로 함수 기술과 이벤트를 구체화함  
+함수 기술은 JSON 객체형태로 필드는 type, name, inputs, outputs, constant, payable 이다.  
+이벤트 기술 객체는 type, name, inputs, anonymous 필드를 가진다.  
+
+아래와 같이 Faucet.sol 컨트랙트를 컴파일하면 아래와 같은 ABI를 만들다  
+```
+$ solc --abi Faucet.sol
+======= Faucet.sol:Faucet =======
+Contract JSON ABI
+[{"inputs":[{"internalType":"uint256","name":"withdraw_amount","type":"uint256"}], \
+"name":"withdraw","outputs":[],"stateMutability":"nonpayable","type":"function"}, \
+{"stateMutability":"payable","type":"receive"}]
+```
+위 컴파일러는 JSON 배열형태로 두 개의 함수를 만들었음  
+위 JSON 이 배포되면 Faucet 컨트랙트에 접근하길 원하는 어떤 어플에서도 사용할 수 있음  
+ABI를 사용하여서 지갑이나 댑 브라우저 같은 어플이 정확한 인자와 인자 타입으로 Faucet 의 함수를 호출하는 트랜잭션을 만들 수 있음  
+
+컨트랙트와 상호작용하는 어플이 필요한 것은 ABI 와 배포후 만들어진 컨트랙트 주소임  
+
+## Selecting a Solidity Compiler and Language Version
+Solidity는 컴파일러 선언자로 버전 pragma 를 제공함  
+이것은 컴파일러에게 정확한 컴파일러 버전을 알려줌  
+```
+pragma solidity ^0.6.0;
+```
+
+
+
+
+
+
+
 
 
