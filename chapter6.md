@@ -112,7 +112,6 @@ Ropsten testnet 위에서 작동하는 Geth 에서 자바스크립트 콘솔을 
 ```
 >web3.eth.getTransactionCount("0x9e713963a92c02317a681b9bb3065a8249de124f")
 40
-a^10  = 테스트
 ```
 |  |  |
 |--|--|
@@ -192,7 +191,7 @@ Concurrency
 # Transaction Recipient
 
 # Transaction Value and Data
-그
+
 ## Transmitting Value to EOAs and Contracts
 ## Transmitting a Data Payload to an EOA or Contract
 
@@ -209,6 +208,16 @@ Concurrency
 
 # Transaction Signing in Practice
 # Raw Transaction Creation and Signing
+raw transaction 을 npm 의 ethereumjs-tx 라이브러리르 사인함  
+사용자를 대신해서 지갑이나 어플에서 아래와 같이 사인함  
+사인한 결과는 아래와 같음  
+```
+$ node raw_tx_demo.js
+RLP-Encoded Tx: 0xe6808609184e72a0008303000094b0920c523d582040f2bcb1bd7fb1c7c1...
+Tx Hash: 0xaa7f03f9f4e52fcf69f836a6d2bbc7706580adce0a068ff6525ba337218e6992
+Signed Raw Transaction: 0xf866808609184e72a0008303000094b0920c523d582040f2bcb1...
+```
+
 ## Raw Transaction Creation with EIP-155
 [Table 1. Chain identifiers]
 |Chain	|Chain ID|
