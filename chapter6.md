@@ -224,6 +224,21 @@ Concurrency
 |Geth private testnets|1337|
 
 # The Signature Prefix Value (v) and Public Key Recovery
+
+From r we also calculate r-1, which is the multiplicative inverse of r.  
+Finally, we calculate z, which is the n lowest bits of the message hash, where n is the order of the elliptic curve.  
+The two possible public keys are then:  
+K1 = r^–1 (sR – zG)  
+and:  
+K2 = r^-1 (sR' – zG)
+where:  
+K1 and K2 are the two possibilities for the signer’s public key.  
+r^-1 is the multiplicative inverse of the signature’s r value.  
+s is the signature’s s value.  
+R and R' are the two possibilities for the ephemeral public key Q.  
+z is the n-lowest bits of the message hash.  
+G is the elliptic curve generator point.  
+
 # Separating Signing and Transmission (Offline Signing)
 ![offline signing](https://github.com/ethereumbook/ethereumbook/raw/develop/images/offline_signing.png)  
 
@@ -231,5 +246,8 @@ Concurrency
 # Recording on the Blockchain
 # Multiple-Signature (Multisig) Transactions
 # Conclusions
+트랜잭션은 이더리움 시스템의 모든 활동의 시작점임  
+트랜잭션은 EVM 컨트랙트를 평가하고, 잔고를 업데이트하며, 이더리움 블록체인을 상태를 변경하는 통로이다  
+다음 챕터에서는 Solidity 에 대해서 자세히 알아 본다  
 
 
