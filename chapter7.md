@@ -199,6 +199,137 @@ Solidity는 컴파일러 선언자로 버전 pragma 를 제공함
 ```
 pragma solidity ^0.6.0;
 ```
+Solidity 컴파일러가 버전 pragma를 읽고 컴파일러 버전이 버전 pragma 와 맞지 않으면 에러를 발생시킨다.  
+Pragma 선언자는 EVM 바이트코드로 컴파일 되지않고 오직 컴파일러가 친화도 체크용도로 사용함  
+
+# Programming with Solidity
+본 섹션에서는 Solidity 언어의 일부 유용성을 보여줄 것임.  
+
+##### Data Types
+기본 데이터 타입  
+*Boolean(bool)  
+  부울린형  
+*Integer(int,uint)
+  Signed 와 Unsigned 정수  
+*Fixed point(fixed, ufixed)
+  고정 포인트 숫자 : fixedMxN,  ufixed32x2.  
+*Address
+  20 바이트 이더리움 주소. 이 주소 객체는 많은 유용한 멤버 함수가 있음   
+*Byte array(fixed)
+  바이트형의 고정 크기의 배열  
+*Byte array(dynamic)
+  바이트형의 변수 크기의 배열  
+*Enum
+  열거형 이산 값을 위한 사용자 정의 타입  
+*Arrays
+  어떤 타입의 배열, 고정되거나 유동적인:  
+  uint32[][5] 고정 크기 배열이고, 5개의 유동 배열을 가짐  
+*Struct
+  변수를 그룹핑하는 사용자 정의 데이터 컨테이너  
+  NAME {TYPE1 VARIABLES1; TYPE2 VARIABLES2; ...}
+*Mapping
+  해시 lookup 테이블 key => value 짝:  
+  mapping(KEY_TYPE => VALUE_TYPE) NAME.  
+*Time units
+  단위 초, 분, 시간, 날짜는 접사로 사용되고, 기본 단위인 초로 곱해서 컨버팅됨 
+*Ether units
+  단위 wei, finney, szabo, ether 들이 접사로 사용되고, 기본 단위 wei 로 곱해서 컨버팅 됨  
+
+Faucet 컨트랙트 예제에서 uint256 형의 withdraw_amount 변수 사용.  
+또한 간접적으로 address 변수 msg.sender 를 사용  
+
+단위 곱셈의 예를 아래와 같음  
+```
+require(withdraw_amount <= 100000000000000000);
+```
+위에 단위를 읽기 불편하다. 단위 곱셈(unit multiplier)을 아래와 같이 사용 가능  
+```
+require(withdraw_amount <= 0.1 ether);
+```
+
+## Predefined Global Variables and Functions
+컨트랙트가 EVM 에서 실행될때, 전역 객체에 접근할 수 있다  
+해당 객체는 접근 가능한 부분은 block, msg, tx 객체이다.  
+Solidity 는 사전 정의된 함수로써 많은 EVM opcode를 제공함   
+이번 섹션에서는 스마트 컨트랙트에서 접근할 수 있는 변수와 함수를 알아봄  
+
+#### Transaction/message call context
+msg 객체는 트랜잭션 콜(EOA 기원자)이거나 메시지 콜(컨트랙트 기원자)  
+해당 컨트랙트 실행을 초발함  
+이것은 아래와 같은 속성을 가지고 있음  
+
+* msg.sender  
+  해당 컨트랙트 콜을 야기한 주소. 하지만 반드시 트랜잭션을 보낸 기원자 EOA는 아님. EOA 트랜잭션의 의해서 컨트랙트가 호출됐다면 이것은 트랜잭션을 사인한 주소임. 그렇지 않다면 컨트랙트 주소임. 
+* msg.value
+  이번 콜과 함께 보내짐 이더의 값  
+* msg.gas
+  해당 실행 환경에서 가스 공급하고 남은 양. gasleft 함수로 바뀜.  
+* msg.data
+  자신의 컨트랙트에 data payload
+* msg.sig
+  data payload 의 첫 4 바이트 는 함수 선택자임.  
+| | |
+|--|--|
+|Note|컨트랙트가 다른 컨트랙트를 호출할때마다 모든 msg 속성값은 새로운 호출자 정보를 반영하여 변한다. 하지만 delegatecall 함수는 다른 컨트랙트나 라이브러리의 기원자의 msg 컨텍스트의 코드를 작동시킨다|  
+
+
+#### Transaction context
+tx 객체는 트랜잭션과 관련된 정보에 접근하는 방법을 제공함  
+
+* tx.gasprice
+  호출하는 트랜잭션의 가스 가격  
+* tx.origin
+  해당 트랜잭션을 위한 기원자의 EOA 의 주소  
+  주의 : 안전하지 않음
+  
+#### Block context
+블록 객체는 현 블록에 관한 정보를 가지고 있음  
+
+* block.blockhash(__blockNumber__)
+  특정 블록 숫자의 블록 해시, 과거 256 개의 블록까지 가능. blockhash 함수로 바뀜  
+* block.coinbase
+  현재 블록의 수수료와 블록 보상의 수령자 주소  
+* block.difficulty
+  현재 블록의 난이도(Proof of work)  
+* block.gaslimit
+  현재 블록에 포함된 모든 트랜잭션에서의 최대 가스 양  
+* block.number
+  현재 블록 숫자(블록체인 높이)  
+* block.timestamp
+  채굴자에 의한 현재 블록에 있는 타임스탬프
+  
+#### Address object
+입력으로서 전달되는 주소나, 컨트랙트 객체로 부터 던저진 주소도 속성과 메소드가 있음  
+
+* address.balance
+  주소의 잔액(wei). 예로서 현재 컨트랙트의 잔액은 address(this).balance 
+* address.transfer(__amount__)
+  이 주소에 일정 금액을 전송하고, 에러시에 예외를 전달함. Faucet 에서 msg.sender.transfer 와 같이 사용.  
+* address.send(__amount__)
+  transfer 와 유사하게 예외를 던지는 것에 대신하여 false 를 리턴함. 경고: 항상 리턴값 체크.
+* address.call(__payload__)
+  로우 레발 CALL 함수. 데이터 페이로드와 함께 임의의 message call을 만듦. 에러시 false 리턴.
+* address.delegatecall(__payload__)
+  로우 레벨 DELEGATECALL 함수. callcade() 같음. 현재 컨트랙트의 풀 msg context 함께 사용. 에러 발생시 false 을 리턴함.  
+
+#### Built-in functions
+
+* addmod, mulmod
+  modulo 덧셈, 곱셈용. 예) addmod(x,y,k) ===  (x + y) % k
+  
+* keccak256, sha256, sha3, ripemd160
+  댜앙햔 표준 해시 알고리즘으로 해시를 계산하는 함수들  
+  
+* ecrecover
+  시그니처로 부터 메시지를 사인하기위해 사용하는 주소를 복구함
+  
+* selfdestruct(__recipient_address__)
+  현재 컨트랙트를 지우고, 남아있는 이더는 수령자 주소 계정으로 보냄  
+  
+* this
+  현재 실행하는 컨트랙트 계정의 주소  
+
+# Contract Definition
 
 
 
