@@ -831,7 +831,9 @@ from: '0x8f0483125fcb9aaaefa9209d8e9d7b9c8b9fb90f'
 ## Estimating Gas Cost
 
 # Conclusions
-  
+본 챕터에서는 스마트 컨트랙트에 대해서 자세히 알아 봤다  
+또한 Solidity 컨트랙트 프로그래밍 언어를 공부했다  
+또다른 언어인 Vyper 을 공부할 것이다.
   
   
   
