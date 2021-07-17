@@ -461,7 +461,158 @@ function destroy() public {
 ```
 
 ## Function Modifiers
+함수 선언시에  modifier 를 넣으므로서 함수에 수정자를 넣을 수 있음  
+수정자는 컨트랙트내에 많은 함수를 적용하는 조건을 만들기 위해 사용됨  
+```
+modifier onlyOwner {
+    require(msg.sender == owner);
+    _;
+}
+```
+위에 문장에서 _; 부분을 볼 수 있다.  이 부분에 실제 코드로 대체됨  
+```
+function destroy() public onlyOwner {
+    selfdestruct(owner);
+}
+```
 
+위 결과 코드는 onlyOwner 수정자 함수가 destory() 함수 코드를 감싸고 있는 것과 같음  
+수정자 안에서 수정된 함수에 선언된 모든 변수에 접근가능함  
+따라서, 위에 경우에는 owner 변수에 접근 가능함  
+하지만 역으로는 부가함, 수정되는 함수에서는 수정자 변수에 접근할 수 없음  
+
+## Constract Inheritance
+상속을 사용하기 위해서는 부모 컨트랙트를 아래와 같이 사용함  
+```
+contract Child is Parent {
+    ...
+}
+```
+따라서 Child 컨트랙트는 Parent 에 메소드, 기능, 변수를 상속함  
+또한 복수 상속을 아래와 같이 사용할 수 있음  
+```
+contract Child is Parent1, Parent2 {
+    ...
+}
+```
+
+아래와 같이 기초 컨트랙트 Owned 를 선언함  
+```
+contract Owned {
+	address owner;
+
+	// Contract constructor: set owner
+	constructor() {
+		owner = msg.sender;
+	}
+
+	// Access control modifier
+	modifier onlyOwner {
+	    require(msg.sender == owner);
+	    _;
+	}
+}
+```
+다음엔 Owned 컨트랙트를 상속한 Mortal 컨트랙트 선언함  
+```
+contract Mortal is Owned {
+	// Contract destructor
+	function destroy() public onlyOwner {
+		selfdestruct(owner);
+	}
+}
+```
+Faucet 컨트랙트에 Mortal 을 상속함  
+```
+contract Faucet is Mortal {
+    // Give out ether to anyone who asks
+    function withdraw(uint withdraw_amount) public {
+        // Limit withdrawal amount
+        require(withdraw_amount <= 0.1 ether);
+        // Send the amount to the address that requested it
+        msg.sender.transfer(withdraw_amount);
+    }
+    // Accept any incoming amount
+    receive () external payable {}
+}
+```
+Faucet 은 Mortal 을 상속함으로써 생성자와 소멸자 함수와 owner 변수도 있음  
+이것은 코드 재사용과 모듈화에 좋은 예임  
+
+## Error Handling (assert, require, revert)
+Solidity 는 다음과 같이 4가지 함수로 에러를 핸들링함: assert, require, revert, throw(now deprecated)  
+
+컨트랙트에 에러 발생시에 되돌려짐,  이것이 트랜잭션의 원자성을 보장함  
+assert 와 require 함수가 에러 발생시에 실행을 중지하고 되돌린다  
+
+기존에 수정자 onlyOwner 에서 require 를 아래와 같이 사용함  
+```
+require(msg.sender == owner);
+```
+require 함수는 게이트 조건으로 사용함  
+즉, 조건이 만족되지 않으면 함수의 나머지를 실행하지 않음  
+
+Solidity v0.6.0 부터 도움 메시지를 require 에 넣을 수 있음  
+에러 메시지는 트랜잭션 로그에 기록된다  
+```
+require(msg.sender == owner, "Only the contract owner can call this function");
+```
+revert 와 throw 는 실행을 중지하고 초기 상태 변화로 되돌림  
+revert 도 에러 메시지를 트랜잭션 로그에 기록할 수 있다  
+
+아래와 같은 상황에서는 revert, require, assert 가 없이도 에러가 발생하면 되돌려 진다  
+충분한 이더가 없으면 transfer 함수는 에러 발생하고 되돌릴 것임  
+```
+msg.sender.transfer(withdraw_amount);
+```
+하지만 아래와 같이 충분한 에러 메시지를 전달하는게 좋을 것임  
+```
+require(this.balance >= withdraw_amount,
+        "Insufficient balance in faucet for withdrawal request");
+msg.sender.transfer(withdraw_amount);
+```
+추가적인 에러 체크 코드가 가스 소모를 약간 늘릴 것이다.  
+에러 체크로 충분한 정보를 줄지 아니면, 가스 소모량을 줄일지 당신이 선택하라  
+
+## Events
+트랜잭션이 성공적으로 생성되거나 또는 실패하거나 트랜잭션 영수증을 만들어짐  
+트랜재션 영수증은 트랜잭션 실행동안 나타난 정보를 가지고 있음  
+Events 는 솔리디티 상위 레벨 객체이고, 위와 같은 로그를 만들기 위해 사용됨  
+
+Events 는 클라이언트나 댑 서비스에서 유용하다  
+사용자 인터페이스로 특정 이벤트를 보고할 수 있음  
+Events 객체는 트랜잭션 로그에 기록될 인자를 취함  
+인자로 인덱스된 키워드를 같이 넣어서 어플단에서 검색이나 필터 조건으로 사용 가능함  
+
+Faucet 예제에 event 를 넣어서 로그 기록을 남길 수 있음  
+```
+contract Faucet is Mortal {
+	event Withdrawal(address indexed to, uint amount);
+	event Deposit(address indexed from, uint amount);
+
+    [...]
+}
+```
+address 타입에 indexed 키워드를 넣었다.  
+따라서 조사하거나 필터링하는데 사용할 수 있음   
+
+emit 키워드로 트랜잭션 로그 안에 있는 event 데이터와 연동할 수 있음  
+```
+// Give out ether to anyone who asks
+function withdraw(uint withdraw_amount) public {
+    [...]
+    msg.sender.transfer(withdraw_amount);
+    emit Withdrawal(msg.sender, withdraw_amount);
+}
+// Accept any incoming amount
+receive () external payable {
+    emit Deposit(msg.sender, msg.value);
+}
+```
+event 키워드는 선언용 
+emit 키워드는 사용용
+
+## Catching events
   
   
   
