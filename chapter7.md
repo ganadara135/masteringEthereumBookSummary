@@ -613,7 +613,224 @@ event 키워드는 선언용
 emit 키워드는 사용용
 
 ## Catching events
-  
+web3.js 라이브러리가 트랜잭션 로그를 가지고 있는 데이터 구조체를 가지고 있음  
+위 구조체에서 트랜잭션에 의해 만들어진 이벤트를 볼 수 있음  
+
+truffle 를 사용해서 Faucat 컨트랙트에 테스트 트랜잭션을 확인해 보자  
+```
+$ truffle develop
+truffle(develop)> compile
+truffle(develop)> migrate
+Using network 'develop'.
+
+Running migration: 1_initial_migration.js
+  Deploying Migrations...
+  ... 0xb77ceae7c3f5afb7fbe3a6c5974d352aa844f53f955ee7d707ef6f3f8e6b4e61
+  Migrations: 0x8cdaf0cd259887258bc13a92c0a6da92698644c0
+Saving successful migration to network...
+  ... 0xd7bc86d31bee32fa3988f1c1eabce403a1b5d570340a3a9cdba53a472ee8c956
+Saving artifacts...
+Running migration: 2_deploy_contracts.js
+  Deploying Faucet...
+  ... 0xfa850d754314c3fb83f43ca1fa6ee20bc9652d891c00a2f63fd43ab5bfb0d781
+  Faucet: 0x345ca3e014aaf5dca488057592ee47305d9b3e10
+Saving successful migration to network...
+  ... 0xf36163615f41ef7ed8f4a8f192149a0bf633fe1a2398ce001bf44c43dc7bdda0
+Saving artifacts...
+
+truffle(develop)> Faucet.deployed().then(i => {FaucetDeployed = i})
+truffle(develop)> FaucetDeployed.send(web3.utils.toWei(1, "ether")).then(res => \
+                  { console.log(res.logs[0].event, res.logs[0].args) })
+Deposit { from: '0x627306090abab3a6e1400e9345bc60c78a8bef57',
+  amount: BigNumber { s: 1, e: 18, c: [ 10000 ] } }
+truffle(develop)> FaucetDeployed.withdraw(web3.utils.toWei(0.1, "ether")).then(res => \
+                  { console.log(res.logs[0].event, res.logs[0].args) })
+Withdrawal { to: '0x627306090abab3a6e1400e9345bc60c78a8bef57',
+  amount: BigNumber { s: 1, e: 17, c: [ 1000 ] } }
+```
+컨트랙트를 배포후에 2가지 트랜잭션을 실행했다  
+첫 트랜잭션은 deposit 이고 트랜잭션 로그의 Deposit event를 emit 함  
+```
+Deposit { from: '0x627306090abab3a6e1400e9345bc60c78a8bef57',
+  amount: BigNumber { s: 1, e: 18, c: [ 10000 ] } }
+```
+다음으로 withdraw 함수를 사용한다. 이것은 Withdrawal event 를 발생시킴(emit)  
+```
+Withdrawal { to: '0x627306090abab3a6e1400e9345bc60c78a8bef57',
+  amount: BigNumber { s: 1, e: 17, c: [ 1000 ] } }
+```
+첫 로그는 logs[0]는 logs[0].event 에 이벤트 이름을 가지고 있고, logs[0].args 에 이벤트 인자를 가지고 있음   
+Event 는 내부 데이터 흐름 뿐만 아니라, 디버그 용도로 사용 가능함  
+
+## Calling Other Contracts (send, call, callcode, delegatecall)
+당신의 컨트랙트에서 다른 컨트랙트를 호출하는 건 매우 유용하나, 위험성도 가지고 있음  
+
+### Creating a new instance
+가장 안전한 외부 컨트랙트 호출은 자신이 만들 컨트랙트를 호출하는 것임  
+Faucet 예제를 보자  
+```
+import "Faucet.sol";
+
+contract Token is Mortal {
+	Faucet _faucet;
+
+    constructor() {
+        _faucet = new Faucet();
+    }
+}
+```
+
+생성자 부분에 아래와 같이 전송 이더를  구체화할 수 있다  
+```
+import "Faucet.sol";
+
+contract Token is Mortal {
+	Faucet _faucet;
+
+    constructor() {
+        _faucet = (new Faucet).value(0.5 ether)();
+    }
+}
+```
+아래와 같이 destroy 함수에서 Faucet 함수를 호출할 수 있다  
+```
+import "Faucet.sol";
+
+contract Token is Mortal {
+	Faucet _faucet;
+
+    constructor() {
+        _faucet = (new Faucet).value(0.5 ether)();
+    }
+
+    function destroy() ownerOnly {
+        _faucet.destroy();
+    }
+}
+```
+Token 컨트랙트의 소유자이면 Token 컨트랙트 내에서 Foacet 컨트랙트를 파괴할 수 있다.  
+
+### Addressing an existing instance
+컨트랙트를 호출할 수 있는 또다른 방법은 컨트랙트의 인스턴스의 주소를 전달하는 것임  
+```
+import "Faucet.sol";
+
+contract Token is Mortal {
+
+    Faucet _faucet;
+
+    constructor(address _f) {
+        _faucet = Faucet(_f);
+        _faucet.withdraw(0.1 ether);
+    }
+}
+```
+위에서 생성자의 인자로 주소를 넘겨준다.  이것은 이전 방법보다 더 위험하다  
+왜나하면 해당 주소가 Faucet 객체인지 확신할 수 없다  
+입력 값으로 주소를 전달하는 것은 컨트랙트 자체를 생성하는 것보다 더 위험함  
+
+### Raw call, delegatecall
+Solidity 는 다른 컨트랙트를 호출하는 로우 레벨 함수를 제공함  
+이것은 EVM opcode를 직접 호출하는 것과 같다  
+이것은 유연하지만 다른 호출 방식보다 더 위험할 수 있다  
+```
+contract Token is Mortal {
+	constructor(address _faucet) {
+		_faucet.call("withdraw", 0.1 ether);
+	}
+}
+```
+이런 방식의 호출을 눈먼 호출 방식이라고 함  
+상당한 보안 이슈가 있음, 재진입 호출 같은.  
+아래와 같이 에러 핸들링할 수 있음  
+```
+contract Token is Mortal {
+	constructor(address _faucet) {
+		if !(_faucet.call("withdraw", 0.1 ether)) {
+			revert("Withdrawal from faucet failed");
+		}
+	}
+}
+```
+또다른 방식인 delegatecall 이 있으나 deprecated 되었다  
+
+대리 호출은 주의해서 사용해야함. 예상할 수 없는 결과를 발생시길 수 있다  
+특히 라이브러리로 설계되어 있지 않은 걸 호출하면 특히 그렇다  
+
+```
+truffle(develop)> migrate
+Using network 'develop'.
+[...]
+Saving artifacts...
+truffle(develop)> (await web3.eth.getAccounts())[0]
+'0x627306090abab3a6e1400e9345bc60c78a8bef57'
+truffle(develop)> caller.address
+'0x8f0483125fcb9aaaefa9209d8e9d7b9c8b9fb90f'
+truffle(develop)> calledContract.address
+'0x345ca3e014aaf5dca488057592ee47305d9b3e10'
+truffle(develop)> calledLibrary.address
+'0xf25186b5081ff5ce73482ad761db0eb0d25abfbf'
+truffle(develop)> caller.deployed().then( i => { callerDeployed = i })
+
+truffle(develop)> callerDeployed.make_calls(calledContract.address).then(res => \
+                  { res.logs.forEach( log => { console.log(log.args) })})
+{ sender: '0x8f0483125fcb9aaaefa9209d8e9d7b9c8b9fb90f',
+  origin: '0x627306090abab3a6e1400e9345bc60c78a8bef57',
+  from: '0x345ca3e014aaf5dca488057592ee47305d9b3e10' }
+{ sender: '0x627306090abab3a6e1400e9345bc60c78a8bef57',
+  origin: '0x627306090abab3a6e1400e9345bc60c78a8bef57',
+  from: '0x8f0483125fcb9aaaefa9209d8e9d7b9c8b9fb90f' }
+{ sender: '0x8f0483125fcb9aaaefa9209d8e9d7b9c8b9fb90f',
+  origin: '0x627306090abab3a6e1400e9345bc60c78a8bef57',
+  from: '0x345ca3e014aaf5dca488057592ee47305d9b3e10' }
+{ sender: '0x627306090abab3a6e1400e9345bc60c78a8bef57',
+  origin: '0x627306090abab3a6e1400e9345bc60c78a8bef57',
+  from: '0x8f0483125fcb9aaaefa9209d8e9d7b9c8b9fb90f' }
+```
+make_calls 함수를 호출하고, calledContract 주소를 전달함  
+그리고 다른 호출 각각의 이벤트를 캐치한 결과임  
+
+```
+_calledContract.calledFunction();
+```
+상위 레벨 ABI 를 사용해서 직접적으로 호출했다 
+위 결과는 아래와 같은 결과를 만듦
+```
+sender: '0x8f0483125fcb9aaaefa9209d8e9d7b9c8b9fb90f',
+origin: '0x627306090abab3a6e1400e9345bc60c78a8bef57',
+from: '0x345ca3e014aaf5dca488057592ee47305d9b3e10'
+```
+msg.sender 가 호출자 컨트랙트의 주소임  
+tx.origin 은 자신의 계정의 주소임, web3.eth.accounts[0], 호출자에게 트랜잭션을 전송함  
+본 이벤트는 calledContract 의해서 만들어짐  
+
+다음 호출은 라이브러리에 make_calls 임  
+```
+calledLibrary.calledFunction();
+```
+위 호출 결과를 아래와 같음  
+```
+sender: '0x627306090abab3a6e1400e9345bc60c78a8bef57',
+origin: '0x627306090abab3a6e1400e9345bc60c78a8bef57',
+from: '0x8f0483125fcb9aaaefa9209d8e9d7b9c8b9fb90f'
+```
+
+이번엔 msg.sender 가 호출자의 주소가 아님  
+이번엔 우리 계정의 주소임, 트랜잭션 오리진과 같다  
+라이브러리에서 호출할때는 항상 delegatecall 을 사용하고,  
+호출자의 컨텍스트내에서 작동한다  
+그래서 calledLibrary 코드에서 운영시에는 호출자의 실행 컨텍스트를 상속함  
+따라서, calledLibrary 내에서 접근할 지라도, 변수 this 는 호출자의 주소이다.  
+
+# Gas Considerations
+
+## Avoid Dynamically Sized Arrays
+
+## Avoid Calls to Other Contracts
+
+## Estimating Gas Cost
+
+# Conclusions
   
   
   
