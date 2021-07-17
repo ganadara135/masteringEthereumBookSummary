@@ -330,11 +330,153 @@ tx 객체는 트랜잭션과 관련된 정보에 접근하는 방법을 제공�
   현재 실행하는 컨트랙트 계정의 주소  
 
 # Contract Definition
+Contract 가 Solidity 의 주요 데이터 타입임  
+객체지향 언어의 객체 정의와 유사하게 contract 는 data 와 method 을 포함하는 컨테이너임  
+Solidity 는 2가지 객체 타입임 있음  
 
+* interface
+  인터페이스 정의는 contract 와 정확히 같은 구조체를 갖는다  
+  하지만, 함수는 정의되지 않고, 선언만 됨  
+  이런 형식의 정의를 stub 이라고 함  
+  함수 인자와 리턴 타입만 있고, 구현하지 않음  
+  인터페이스는 상속할때 contract 형태를 구체화하고  
+  인터페이스에 선언된 각 함수는 자식쪽에서 정의되어야 함  
+  
+* library
+  라이브러리 컨트랙트는 오직 한번 배포되도록 만들어짐  
+  다른 contract 에 의해서 사용되고, 그때 delegatecall 메소드를 사용함  
+  
 
+## Functions
+contract 내에 EOA 트랜잭션이나 다른 컨트랙트에 의해 호출될 수 있는 함수를 정의함  
+Faucet 예제엔 2가지 함수를 가지고 있음 : withdraw, 이름없는 fallback
+문법은 아래와 같음  
+```
+function FunctionName([parameters]) {public|private|internal|external}
+[pure|view|payable] [modifiers] [returns (return types)]
+```
 
+#### FunctionName
+  함숨의 이름은 다음과 같이 3가지 경우로 호출되기위해 사용함  
+  트랜잭션에서 호출할때, 다른 컨트랙트에서 호출할때, 같은 contract 에서 호출할때  
+  함수에 "fallback" 키워드를 사용해서 폴백 함수로 사용하거나,  
+  "receive" 키워드를 사용해서 리시브 이더 함수롤 사용할 수 있음  
+  리시브 이더 함수는 call 데이터가 비어 있을때마다 호될되고  
+  폴백 함수는 contract 이내에 함수 이름이 없는 함수가 있을때 호출됨  
+  폴백 함수는 인자와 리턴 형이 없음  
+  
+####  parameters
+  함수에 전달되어야 할 인자를 구체화한다  
+  이름과 형식을 표기함  
+  
+#### public
+  Public 이 기본형이고 다른 contract 나 트랜잭션에 의해서 호출될 수 있음.  
+  
+#### external
+  External 함수는 public 함수와 같다.  대신 this 키워드가 명확히 선언되어 있지 않으면 자신의 contract 내에서 호출될 수 없음  
+  
+#### internal
+  Internal 함수는 자신의 contract 내에서만 접근할 수 있음. 본 contract 를 상속한 contract 내에서는 호출함 수 있음  
 
+#### private
+  Private 함수는 internal 함수와 같다. 대신 상속 contract 에서는 호출할 수 없음  
+  
+여기서 사용하는 internal 과 private 용어는 함수간에 언제, 어떻게 호출하는지에만 영향을 미침   
+퍼블릭 블록체인에서는 모든 함수와 데이터가 외부에 노출됨을 주의하라  
 
+(pure, constant, view, payable) 키워드는 함수의 행동에 영향을 미침  
+
+#### constant or view
+  본 키워드가 있으면 상태를 변경할 수 없음
+  
+#### pure
+  본 키워드가 있으면 변수를 읽거나 쓰기가 불가함. 오직 인자와 리턴 값만 취하고 어떤 저장된 데이터도 참조하지 않음. Pure 함수는 선언형 형태의 프로그래밍을 유도할 수 있음  
+  
+#### payable
+  payable 함수는 들어오는 지불을 받아드리는 기능을 함. 본 키워드가 없는 함수는 들어오는 지불을 거부함. 2가지 예외가 있다. coinbase 지불과 SELFDESTRUCT 인스턴스는 payable 이라고 선언되지 않아도 폴백 기능을 함.  
+  
+
+## Contract Constructor and selfdestruct
+데이터 초기화 용도로 사용하는 constructor 함수가 있음  
+오직 한번만 호출되고 사용은 optional 임  
+생성자는 컨트랙트 생성할때 같은 트랜잭션에서 호출됨  
+
+생성자는 Contract 이름가 같은 이름을 사용함  
+```
+contract MEContract {
+    function MEContract() {
+        // This is the constructor
+    }
+}
+```
+
+Solidity v0.4.22 부터는 constrctor 키워드를 도임함  
+```
+pragma ^0.4.22
+contract MEContract {
+    constructor () {
+        // This is the constructor
+    }
+}
+```
+constract  라이프 사이클은 EOA 나 컨트랙트 계정으로부터 트랜잭션 생성과 함께 시작  
+생성자가 있다면, 컨트랙트 초기화 기능을 수행함  
+
+SELFDESTRUCT EVM opcode 는 다음과 같고, 인자로 남은 이더를 받을 주소를 넣음  
+```
+selfdestruct(address recipient);
+```
+위 코드가 컨트랙트에 포함되어야 삭제할 수 있고, 없으면 영원히 컨트랙트가 지워지지 않음  
+
+## Adding a Constructor and selfdestruct to Our Faucet Example
+Faucet 예제에 생성자와 selfdestruct 를 넣어보자  
+selfdestruct는 컨트랙트 생성자만 호출할 수 있게 변경함  
+```
+// Version of Solidity compiler this program was written for
+pragma solidity ^0.6.0;
+
+// Our first contract is a faucet!
+contract Faucet {
+
+    address owner;
+
+    // Initialize Faucet contract: set owner
+    constructor() {
+        owner = msg.sender;
+    }
+
+    [...]
+}
+```
+일반 함수에서는 msg.sender 가 해당 함수 호출자를 가르키지만  
+생성자에서는 EOA 또는 컨트랙트 생성하는 컨트랙트 주소임  
+
+아래와 같이 컨트랙트 소멸자를 만들수 있음  
+```
+// Contract destructor
+function destroy() public {
+    require(msg.sender == owner);
+    selfdestruct(owner);
+}
+```
+
+## Function Modifiers
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
 
 
 
