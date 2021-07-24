@@ -25,8 +25,32 @@ Solidity 와 비교해 본다
 Vyper는 안전 코딩을 쉽게하고 실수로 잘못된 코딩을 하는 것을 방지하게 설계됨  
 
 # Comparison to Solidity
+Vyper는 Solidity 주요 특징중 일부를 제거함으로써 코드의 안전성을 높였음  
+따라서 Vyper 가 가지고 있는 특징을 이해하는 게 중요함  
+본 섹션에서는 무슨 특징을 제거했는지 보여줄 것임  
 
 ## Modifiers
+Solidity 에서 한정자를 사용해 봤을 것이다  
+아래 예제는 한정자를 사용한 코드임  
+onlyBy 가 한정자가 사용된 부분임  
+```
+function changeOwner(address _newOwner)
+    public
+    onlyBy(owner)
+{
+    owner = _newOwner;
+}
+```
+위에 사용된 한정자의 의도는 오너쉽과 관련된 규칙을 강제하기 위해서 도입됨  
+이 한정자는 changeOwner 함수를 대신해서 사전 체크를 수행하는 메커니즘을 수햄함  
+```
+modifier onlyBy(address _account)
+{
+    require(msg.sender == _account);
+    _;
+}
+```
+
 ## Class Inheritance
 ## Inline Assembly
 ## Function Overloading
@@ -37,7 +61,7 @@ Vyper는 안전 코딩을 쉽게하고 실수로 잘못된 코딩을 하는 것�
 
 # Function and Variable Ordering
 # Compilation
-# Protecting Against Overflow Errors at the Compiler Level
+## Protecting Against Overflow Errors at the Compiler Level
 # Reading and Writing Data
 
 # Conclusions
