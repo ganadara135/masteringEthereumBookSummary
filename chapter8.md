@@ -102,17 +102,155 @@ Vyper 는 아래와 같은 방법을 도입함
 한정자를 assertions 과만 수행한다면, 인라인 체크를 수행하고  
 함수의 일부로서 assert 하라  
 스마트컨트랙트 상태를 변경하려면 해당 변화를 함수의 명확한 부분으로 해서 수행함  
-이렇게하면 추적성과 읽기도를 높인다  
+이렇게하면 추적성과 가독성을 높인다  
 
 ## Class Inheritance
+상속은 기존에 소프트웨어 라이브러리에 존재하던 행동, 특성, 기능을 재사용할 수 있도록 함  
+Solidity 도 다형성 뿐만 아니라 복수 상속도 지원함  
+이런 기능이 객체지향 프로그래밍에 주요 특징이기는 하나, Vyper는 지원하지 않음  
+Vyper는 상속을 구현하기 위해서는 코더와 감시자가 여러 파일 사이를 점프하도록 함  
+즉, 프로그램이 무엇을 하는 이해하도록 유도하기위해서 임  
+Vyper는 또한 복수 상속은 코드를 너무 이해하기 어럽게 만들도록 디자인했음  
+
 ## Inline Assembly
+Inline Assembly 는 개발자에게 EVM 로우 레벨에 접근할 수 있도록 했음  
+즉, Solidity 단에서 EVM 명령어에 직접 접근해 프로그래밍할 수 있음  
+아래 예제는 inline Assembly 샘플로써 메모리 위치 0x80 에 3을 더함  
+```
+ 0x80 mload add 0x80 mstore
+```
+Vyper 는 가독성의 손실이 추가적인 능력보다 위선시 하여서 inline Assembly 을 지원 안함  
+
 ## Function Overloading
+함수 재정의는 같음 이름의 함수에 여러 기능을 할 수 있도록 함  
+어느 함수가 실행될지는 주어진 인자의 타입에 의존함  
+아래의 예제를 보자  
+```
+function f(uint _in) public pure returns (uint out) {
+    out = 1;
+}
+
+function f(uint _in, bytes32 _key) public pure returns (uint out) {
+    out = 2;
+}
+```
+다른 인자를 취하는 같음 이름의 복수 함수 정의를 갖는 것은 혼란을 야기할 수 있음  
+따라서 Vyper 에서는 지원하지 않음  
+
 ## Variable Typecasting
+두 가지 종류의 타입캐스팅이 있음 : 묵시적, 명시적  
+
+묵시적 타입캐스팅은 컴파일 시에 작동함  
+즉, 타입 전환이 의미적으로 건전하고 정보 손실이 없을때,  
+컴파일러는 묵시적 전환을 수행함 : 타입 uint8 에서 unit16 으로 변수 전환시  
+초기 버전의 Vyper는 묵시적 타입캐스팅을 지원했으나 지금음 중단함  
+
+명시적 타입캐스트는 Solidity 에도 도입됨. 불행히 예측할 수 없는 결과를 만들어 냄  
+예로서 uint32 를 더 작은 타입은 uint16 으로 전환시 상위 비트가 날아감.  아래는 그 예제임  
+```
+uint32 a = 0x12345678;
+uint16 b = uint16(a);
+// Variable b is 0x5678 now
+```
+Vyper 는 대신 명시적 캐스트를 위한 전환 함수를 도입함  
+전환 함수는 일부분은 보여줌(라인 82 of convert.py)  
+```
+def convert(expr, context):
+    output_type = expr.args[1].s
+    if output_type in conversion_table:
+        return conversion_table[output_type](expr, context)
+    else:
+        raise Exception("Conversion to {} is invalid.".format(output_type))
+```
+위 코드의 conversion_table 은 아래와 같이 생겼음  
+```
+conversion_table = {
+    'int128': to_int128,
+    'uint256': to_unint256,
+    'decimal': to_decimal,
+    'bytes32': to_bytes32,
+}
+```
+개발자가 전환 기능 호출할때, 적합한 전환을 수행을 보장코자 conversion_table 을 참조한다  
+즉, 개발자가 int128 을 전환 함수에 전달하면, to_int128 함수가 실행될 것임   to_int128 함수는 아래와 같음  
+```
+@signature(('int128', 'uint256', 'bytes32', 'bytes'), 'str_literal')
+def to_int128(expr, args, kwargs, context):
+    in_node = args[0]
+    typ, len = get_type(in_node)
+    if typ in ('int128', 'uint256', 'bytes32'):
+        if in_node.typ.is_literal
+            and not SizeLimits.MINNUM <= in_node.value <= SizeLimits.MAXNUM:
+            raise InvalidLiteralException(
+                "Number out of range: {}".format(in_node.value), expr
+            )
+        return LLLnode.from_list(
+            ['clamp', ['mload', MemoryPositions.MINNUM], in_node,
+            ['mload', MemoryPositions.MAXNUM]], typ=BaseType('int128'),
+            pos=getpos(expr)
+        )
+    else:
+        return byte_array_to_num(in_node, expr, 'int128')
+```
+위에 나타난것처럼 전환 과정은 정보 분실이 없도록 보장함   
+정보 분실이 발생하면 예외를 던진다  
+위 전환 코드는 묵시적 타입캐스팅에 의해 발생할 수 있는 비이상적 상황뿐만 아니라  
+비트 잘내님을 방지한다  
+묵시적 타입캐스팅에서 명시적 선택은 개발자가 모든 책임을 진다것을 의미한다  
+이런 접근 방법이 부차적인 코드가 늘어나는 반면에 스마트컨트랙트에 안전성과 감시성을 높여줌  
+
 ## Infinite Loop
+Solidity 에선 Gas 한계에 따라 메리트가 없지만 무한 루프를 사용할 수 있음  
+무한 루프는 Gas 한계 조건에서 상위 경계를 설정할 수 없으므로 Gas 한계 공격을 받을 수 있음  
+그래서 Vyper 는 아래와 같은 절차를 허용하지 않음  
+
+#### while 문
+Solidity 에서 while 문 사용 가능하나, Vyper 는 없음  
+#### for 문 (끝이있는 반복문)
+Vyper는 for 문은 지원함.  하지만 반복문의 상위 한계 값이 존재해야 함  
+#### 재귀적 호출
+재귀적 호출은 Soldity 에서 가능하나, Vyper는 지원 안함  
+
+## Preconditions and Postconditions(사전-사후조건)
+Vyper 는 사전조건, 사후조건, 상태 변환을 명시적으로 관리함  
+이것은 코드량을 늘릴 수 있으나, 가독성과 안전성을 높여줌  
+Vyper 에서 스마트컨트랙트를 작성할때 아래 3가지 포인트에 집중하라  
++ Conditions
+무엇이 이더리움 상태 변수의 현재 상태나 조건인지?  
++ Effects
+이 스마트컨트랙트 코드가 실행시에 현 상태 변수의 조건에서 무슨 효과를 가져올지?   
++ Interaction
+위 2가지 조건이 완전히 처리된 이후에 이젠 코드를 실행할 차례임  
+배포 전에 코드를 논리적으로 머리속에서 돌려보고  
+모든 가능한 영구적 결과나 시나리오를 고려해서 시뮬레이션해보아라  
+특히 다른 컨트랙트와의 상호작용도 고려해야함  
+
+위의 3가지 포인트를 주의깊게 고려해서 철저히 문서화해야함  
+그래야 코드의 설계와 가독성 감시성(추적성)을 높여줌  
 
 # Decorators
+아래의 꾸밈자들은 각 함수의 맨 앞에 사용되어야 함  
++ @private
+본 꾸밈자는 컨트랙트 밖에서 함수를 접근할 수 없도록 함  
+
++ @public
+본 꾸밈자는 함수를 외부에서 보이게도 실행할 수 있게도 함  
+예로서 이더리움 지갑이 컨트랙트를 보려고할때 선언된 함수들을 볼 수 있다  
+
++ @constant
+본 꾸밈자는 상태 변수를 변경하는 것을 허용하지 않음  
+컴파일러가 전체 프로그램을 거부할 것이다  
+
++ @payable
+본 꾸밈자가 있는 함수만 전송 기능이 가능하다  
+
+Vyper는 명시적으로 꾸밈자 로직을 구현함  
+Vyper 컴파일 과정에서 함수가 @payable 과 @constant 꾸밈자를 둘다 가지고 있다면 거부한다  
+이것은 전송하는 함수가 상태 업데이트를 하므로 @constant 할 수 없다는 것은 자명하다  
+또한, 모든 Vyper 함수는 @public 하거나 @private 해야함  
 
 # Function and Variable Ordering
+
 # Compilation
 ## Protecting Against Overflow Errors at the Compiler Level
 # Reading and Writing Data
