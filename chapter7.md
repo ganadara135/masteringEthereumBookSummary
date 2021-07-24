@@ -864,6 +864,48 @@ var gasPrice = web3.eth.getGasPrice();
 var gasCostInEther = web3.utils.fromWei((gasEstimate * gasPrice), 'ether');
 ```
 
+위 Gas 비용을 계산하는 기능을 Faucet.sol 예제에 넣어보자  
+```
+var FaucetContract = artifacts.require("./Faucet.sol");
+
+FaucetContract.web3.eth.getGasPrice(function(error, result) {
+    var gasPrice = Number(result);
+    console.log("Gas Price is " + gasPrice + " wei"); // "10000000000000"
+
+    // Get the contract instance
+    FaucetContract.deployed().then(function(FaucetContractInstance) {
+
+		// Use the keyword 'estimateGas' after the function name to get the gas
+		// estimation for this particular function (aprove)
+		FaucetContractInstance.send(web3.utils.toWei(1, "ether"));
+        return FaucetContractInstance.withdraw.estimateGas(web3.utils.toWei(0.1, "ether"));
+
+    }).then(function(result) {
+        var gas = Number(result);
+
+        console.log("gas estimation = " + gas + " units");
+        console.log("gas cost estimation = " + (gas * gasPrice) + " wei");
+        console.log("gas cost estimation = " +
+                FaucetContract.web3.utils.fromWei((gas * gasPrice), 'ether') + " ether");
+    });
+});
+```
+위 결과는 Truffle 개발 콘솔에 아래와 같이 나타난다  
+```
+$ truffle develop
+
+truffle(develop)> exec gas_estimates.js
+Using network 'develop'.
+
+Gas Price is 20000000000 wei
+gas estimation = 31397 units
+gas cost estimation = 627940000000000 wei
+gas cost estimation = 0.00062794 ether
+```
+
+Gas 비용 함수를 자신의 컨트랙트에 넣는 것을 추천함  
+그래야 자신의 컨트랙트를 메인넷에 배포할 때 갑작스러운 놀람을 방지 가능 ^^  
+
 # Conclusions
 본 챕터에서는 스마트 컨트랙트에 대해서 자세히 알아 봤다  
 또한 Solidity 컨트랙트 프로그래밍 언어를 공부했다  
