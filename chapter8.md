@@ -250,9 +250,122 @@ Vyper 컴파일 과정에서 함수가 @payable 과 @constant 꾸밈자를 둘�
 또한, 모든 Vyper 함수는 @public 하거나 @private 해야함  
 
 # Function and Variable Ordering
+모든 개발젹인 Vyper 스마트 컨트랙트는 오직 한 개의 Vyper 파일로 구성됨  
+따라서 주어진 Vyper 스마트 컨트랙트 코드는 한 곳에 존재한다, 즉 함수, 변수, 기타 등등.  
+Vyper 는 각 스마트컨트랙트 함수와 변수 선언이 특정한 순으로 작성되기를 요구함  
+하지만, Solidity 는 이런 요구사항이 없음. 아래는 Solidity 예제임   
+```
+pragma solidity ^0.4.0;
+
+contract ordering {
+
+    function topFunction()
+    external
+    returns (bool) {
+        initiatizedBelowTopFunction = this.lowerFunction();
+        return initiatizedBelowTopFunction;
+    }
+
+    bool initiatizedBelowTopFunction;
+    bool lowerFunctionVar;
+
+    function lowerFunction()
+    external
+    returns (bool) {
+        lowerFunctionVar = true;
+        return lowerFunctionVar;
+    }
+
+}
+```
+위 예에서 topFunction 을 호출하는 함수가 또다른 함수 lowerFunction 을 호출한다  
+topFunction 또한 initiatizedBelowTopFunction 호출하는 한 변수에 값을 할당하고 있음  
+위와 같이 Solidity 는 실행하는 코드에 의해서 호출되기 전에 함수와 변수가 선언되기를 요구하지 않음  
+
+Vyper 순서 요구는 새로운 것이 아님: 사실 순서 요구는 Python 프로그래밍에서도 존재함  
+Vyper 에 의해서 요구되는 순서는 직관적이로 논리적임. 아래 예를 보자  
+```
+# Declare a variable called theBool
+theBool: public(bool)
+
+# Declare a function called topFunction
+@public
+def topFunction() -> bool:
+    # Assign a value to the already declared function called theBool
+    self.theBool = True
+    return self.theBool
+
+# Declare a function called lowerFunction
+@public
+def lowerFunction():
+    # Call the already declared function called topFunction
+    assert self.topFunction()
+```
+어떻게 theBool 변수와 topFunction 함수가 호출되고 값이 할당되기전에 각각 호출되기전에 선언되는지 주의해서 보자  
+theBool 이 topFunction 아래와 선언되거나, topFunction 이 lowerFunction 아래에 선언되면,  
+위 컨트랙트는 컴파일되지 않는다  
 
 # Compilation
+Vyper 는 온라인 코드 에디터와 컴파일러가 있음  
+스마트컨트랙트를 바이트코드, ABI, LLL 로 웹브라우저에서 변환해줌  
+Vyper 온라인 컴파일러는 샘플 코드 같이 먼저 작성된 스마트컨트랙트가 많음   
+또한 오직 한가지 버전의 컴파일러 소프트웨어를 제공하고 정기적으로 업데이트 됨  
+Etherscan 은 온라인 Vyper 컴파일러가 컴파일러 버전을 선택할 수 있게 지원함  
+또한 Remix 도 Vyper 플러그인을 환경설정 탭에서 지원함  
+| | |  
+|--|--|
+|Note| Vyper 의 컨트랙트는 전역 변수(Global variables) 로 선언되어야 함. 아래 예야 같이 ERC20 변수를 선언시에 아래와 같다   token: address(ERC20)  |
+
+command line 방식으로 컨트랙트를 컴파일할 수 있음  
+Vyper 컨트랙트는 .vy 확장자명으로 단일 파일로 저정됨  
+Vyper 가 설치되면 아래와 같이 컴파일 할 수 있음  
+```
+vyper ~/hello_world.vy
+```
+사람이 읽을 수 있는 ABI 기술문서로(JSON format) 아래와 같은 명령어 얻을 수 있음  
+```
+vyper -f json ~/hello_world.v.py
+```
+
 ## Protecting Against Overflow Errors at the Compiler Level
+오버플로우 에러는 실수 값을 처리할 때 치명적인 결과를 초래함  
+"transaction from mid-April 2018" 사건이 이런 문제가 얼마나 심각한 결과를 초래햐난 보여주는 예임  
+오버플로우 에러로 57,896,044,618,658,100,000,000,000,000,000,000,000,000, 000,000,000,000,000,000 BEC tokens.  
+우와 같은 토큰이 BeautyChain ERC20 토큰 컨트랙트가 만들어짐(BecToken.sol)  
+Solidity 개발자는 SafeMath 와 Mythril OSS 같은 라이브러리를 적극 사용해야함  
+하지만 강제 사항이 아니므로 개발자들이 안 따를 여지가 있음  
+
+Vyper 는 내장된 오버플로우 방지 기능이 있음  
+위 기능은 2가지 갈래로 접근해서 구현되었음  
+첫째 Vyper 는 정수형 산술을 위한 반드시 필요한 예외를 가지고 있는 SafeMath 유사한 기능을 제공한다  
+둘째 Vyper 는 죔쇠(Clamps)를 사용해서 언제든 문자형 상수가 로딩되거나, 값이 함수에 전달되거나 변수가 할당될대 오버플로우 방지 기능을 적용함  
+Clamps 는 로우 레벨의 Lisp 같은 언어 컴파일러로 구현되었음   
+Vyper 컴파일러는 EVM 바이트코드가 아닌 LLL 을 만들어줌  
+
 # Reading and Writing Data
+데이터를 저장하고, 읽고, 수정하는 작업은 상당히 비용적인 작업임  
+하지만 대부분의 스마트 컨트랙트에서는 필수적인 기능임  
+스마트 컨트랙트는 2 장소에 데이터를 쓸 수 있음
++ Global state
+스마트 컨트랙트에서 상태 변수는 이더리움 전역 상태 트라이(trie)에 저장됨   
+스마트컨트랙트가 특정 컨트랙트의 주소와 관련된 데이터를 오직 저장하고 읽고, 수정할 수 있다.  
+스마트 컨트랙트는 다른 스마트 컨트랙트에 읽고 쓸수 없음  
+
++ Logs
+스마트 컨트랙트는 또한 로그 이벤트를 통해서 이더리움 체인 데이터에 쓸 수 있음  
+Vyper 가 초기에 이런 이벤트를 선언하기 위해서 __log__ 문법을 적용했으나,  
+업데이트가 Solidity 오리지널 문법과 함께 이벤트 선언이 더욱 나타냄  
+(Solidity 의 이벤트 선언 방식과 신택스가 같아졌다는 뜻임)
+
+스마트 컨트랙트가 이더리움 체인 데이터게 로그 이벤트를 통해서 쓸 수 있는 반면에  
+스마트 컨트랙트는 그들이 만든 온체인 로그 이벤트를 읽을 수 없음  
+그럼에도 불구하고 이더리움 체인 데이터에 로그 이벤트를 통해서 쓰는 잇점은  
+로그를 퍼블릭 체인에서 라이트 클라이언트들이 찾거나 읽을 수 있다는 것임  
+예로서 채굴된 블록에서 logsBoom 값은 로그 이벤트가 존재하는지 아닌지를 나타낸다  
+일단 로그 이벤트가 존재가 확정되면, 로그 데이터는 주어진 트랜잭션 영수증으로 부터 얻을 수 있음  
 
 # Conclusions
+Vyper 는 강력하고 흥미있는 새로운 컨트랙트 중심의 프로그래밍 언어임  
+설계의 초점은 유연성을 포기하면서 정확성에 치중하였음  
+이것이 더 낫은 스마트 컨트랙을 작성하고 심각한 취약점을 방지할 수 있게 한다  
+다음 절에서 스마트 컨트랙트의 보안 이슈을 더 자세히 알아볼 것임  
