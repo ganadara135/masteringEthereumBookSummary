@@ -50,6 +50,47 @@ modifier onlyBy(address _account)
     _;
 }
 ```
+한정자는 여기에 보이는 예제처럼 단순히 체크를 수행하기 사용되지만은 않음  
+한정자는 호출하는 문맥에서 스마트컨트랙트에 심각한 변화를 야기함  
+아래의 예제처럼 한정자가 빈번히 사용된 예제를 보자  
+```
+enum Stages {
+    SafeStage,
+    DangerStage,
+    FinalStage
+}
+
+uint public creationTime = now;
+Stages public stage = Stages.SafeStage;
+
+function nextStage() internal {
+    stage = Stages(uint(stage) + 1);
+}
+
+modifier stageTimeConfirmation() {
+    if (stage == Stages.SafeStage &&
+                now >= creationTime + 10 days)
+        nextStage();
+    _;
+}
+
+function a()
+    public
+    stageTimeConfirmation
+    // More code goes here
+{
+}
+```
+개발자는 그들 자신의 코드가 호출되는 모든 부분에서 체크를 항상 해야함  
+하지만 어떤 상황에서는 개발자가 까먹을 수 있음  
+(위 예제에서는 집중력 부족으로 시간 제한 또는 고갈)  
+개발자가 큰 파일로 지나치거나  
+계층적 함수 호출을 머리로만 추적하다가 또는  
+스마트컨트랙트 변수를 상하태를 메모리로 전달하면서  
+
+
+
+
 
 ## Class Inheritance
 ## Inline Assembly
