@@ -823,12 +823,46 @@ from: '0x8f0483125fcb9aaaefa9209d8e9d7b9c8b9fb90f'
 따라서, calledLibrary 내에서 접근할 지라도, 변수 this 는 호출자의 주소이다.  
 
 # Gas Considerations
+Gas 개념은 스마트컨트랙트에서 정말 중요한 역할 수행  
+Gas 는 컴퓨팅 최대치를 제한하는 자원임  
+즉 이더리움이 트랜잭션에 사용할 수 있는 양을 결정  
+Gas 한계가 컴퓨팅 동안 넘어셔면, 아래와 같은 이벤트 발생  
++ Out of Gas 예외 발생
++ 예외 전으로 컨트랙트 상태가 복구 됨  
++ 가스 사용을 위해 지불된 모든 이더는 트랜잭션 수수료로 사용됨, 즉 안 돌려줌  
 
-## Avoid Dynamically Sized Arrays
+Gas 가 트랜잭션을 발생시킨자에게 청구되므로  
+높은 가스 비용을 요구하는 함수 호출을 주저하게 됨  
+따라서 Gas 비용을 최소화하는 것이 프로그래머의 최대 관심사임  
 
-## Avoid Calls to Other Contracts
+## Avoid Dynamically Sized Arrays(유동형 크기의 배열을 회피)
+유동형 크기의 배열을 반복문으로 호출하거나 특정 요소를 찾는 행위는 고비용의 가스 사용을 야기할 수 있음  
+따라서 원하는 결과를 얻기전에 가스를 소진할 수 있음  
 
-## Estimating Gas Cost
+## Avoid Calls to Other Contracts(다른 컨트랙트 호출 회피)
+Gas 비용을 알수없는 상태에서 다른 컨트랙트를 호출하는 것은  Gas 소진 리스크를 높임  
+따라서 테스트가 충분히 되었거나 널리 사용되는 라이브러리가 아니면 사용을 피하라  
+
+## Estimating Gas Cost(가스 비용 측정)
+아래의 코드 샘플은 다른 컨트랙트의 함수를 호출할 때 필요한 Gas 비용을 측정해 줌  
+```
+var contract = web3.eth.contract(abi).at(address);
+var gasEstimate = contract.myAweSomeMethod.estimateGas(arg1, arg2,
+    {from: account});
+```
+gasEstimate 은 해당 함수 시행을 위해서 필요한 Gas 단위의 숫자를 전달 받음  
+이 결과는 EVM 튜링 완결성에 따른 추산치임.  
+즉 상황에서 측정할 때는 다른 결과를 볼 수 있음  
+하지만, 대부분의 상황에서는 잘 맞을 것임  
+
+Gas 가격을 얻기 위해서는 아래와 같이 수행함  
+```
+var gasPrice = web3.eth.getGasPrice();
+```
+위 결과와 함께 최종 Gas 비용을 얻을 수 있음  
+```
+var gasCostInEther = web3.utils.fromWei((gasEstimate * gasPrice), 'ether');
+```
 
 # Conclusions
 본 챕터에서는 스마트 컨트랙트에 대해서 자세히 알아 봤다  
