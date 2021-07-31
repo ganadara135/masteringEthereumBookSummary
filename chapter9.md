@@ -113,6 +113,75 @@ contract Attack {
   }
 }
 ```
+공격이 어떻게 이루어지나?  
+첫째, 공격자가 악의적인 컨트랙트를 만든다(예 0x0...123)  
+위 컨트랙트는 생성자에 인자로 EtherStore 컨트랙트의 주소를 넣어준다  
+이것이 공격 대상인 컨트랙트를 etherStore 로 초기화시킨다  
+
+따라서 공격자는 이제 attackEtherStore 함수를 호출할 수 있음  
+위 예제에서 몇몇의 사용자가 이더를 이미 예금했다고 가정한다(약 10 이더)  
+1. Attack.sol 의 라인 15:  EtherStore 컨트랙트의 depositFunds 함수가 1 이더의 msg.value 로 호출된다. 따라서 보낸자는 악의적인 컨트랙트의(0x0...123) 이고 잔액은 1 이더임  
+2. Attack.sol 라인 17 : 악의적인 컨트랙트가 1 이더의 인자로 EtherStore 컨트랙트의 withdrawFunds 함수를 호출한다. 이것은 모든 요구사항을 통과할 것임(EtherStore 컨트랙트의 라인 12-16)  
+3. EtherStore.sol 라인 17 : 컨트랙트는 악의적인 컨트랙트에게 1 이더를 돌려 줄 것임  
+4. Attack.sol 라인 25 : 이때 악의적인 컨트랙트의 지불 절차가 폴백 함수를 실행할 것임  
+5. Attack.sol 라인 26 : EtherStore 컨트랙트의 전체 잔액이 10 이더이고 현재는 9 이더이므로 진술문을 통과할 것임  
+6. Attack.sol 라인 27 : 폴백 함수가 EtherStore 의 withdrawFunds 함수를 다시 호출하고 EtherStore 컨트랙트에 재진입한다  
+7. EtherStore.sol 라인 11 : withdrawFunds 의 2번째 호출에서 공격하는 컨트랙트의 잔액은 여전히 1 이더 임. 라인 18이 아직 실행되지 않았으므로. 따라서 balances[0x0...123] = 1 ether 임. 이것은 또한 lastWithdrawTime 변수의 경우이다. 다시 모든 요구사항을 통과한다.  
+8. EtherStore.sol 라인 17 : 공격하는 컨트랙트가 또하나의 1 이더를 인출함  
+9. 단계 4-8 반복함, EtherStore.balance > 1 더 이상 안 맞을 때까지  
+10. Attack.sol 라인 26 : 일단 EtherStore 컨트랙트에 1 이더 보다 적게 남는다면 if 조건문을 실패할 것이다. 이것은 EtherStore 컨트랙트의 라인 18, 19 번을 실행하게 한다.  
+11. EtherStore.sol 라인 18, 19 : balances 와 lastWithdrawTime 매핑은 값이 설정되고 실행은 종료할 것임  
+
+## Preventative Techniques
+잠재적인 재진입 취약점을 회피하기 위한 몇가지 공통 기술이 있음  
+첫째는 이더를 외부주소로 보낼때는 가능한 내부 함수인 transfer 를 사용하라   
+transfer 함수는 외부 호출에 오직 2300 gas를 사용하므로 목적지 주소나 컨트랙트가 또다른 컨트랙트를 호춯하기에는 가스가 충분하지 않다  
+
+두번째 기술은 상태 변수를 바꾸는 모든 로직은 이더가 컨트랙트 외부로 보내지기 전에 이루어지게 한다  
+EtherStore 예제 라인 18, 19는 라인 17 전에서 놓여야 한다  
+이것이 좋은 실예이다. 
+외부 호출을 알수없는 주소로 수행하는 어떤 코드도 로컬 함수나 코드 실행의 마지막 부분에 행해야한다  
+
+세번재 기술은 뮤텍스이다. 즉, 코드 실행동안에서 상태 변수를 막는 기능을 넣는다  
+아래 예제는 재진입 호출에 자유로는 컨트랙트임  
+```
+contract EtherStore {
+
+    // initialize the mutex
+    bool reEntrancyMutex = false;
+    uint256 public withdrawalLimit = 1 ether;
+    mapping(address => uint256) public lastWithdrawTime;
+    mapping(address => uint256) public balances;
+
+    function depositFunds() external payable {
+        balances[msg.sender] += msg.value;
+    }
+
+    function withdrawFunds (uint256 _weiToWithdraw) public {
+        require(!reEntrancyMutex);
+        require(balances[msg.sender] >= _weiToWithdraw);
+        // limit the withdrawal
+        require(_weiToWithdraw <= withdrawalLimit);
+        // limit the time allowed to withdraw
+        require(now >= lastWithdrawTime[msg.sender] + 1 weeks);
+        balances[msg.sender] -= _weiToWithdraw;
+        lastWithdrawTime[msg.sender] = now;
+        // set the reEntrancy mutex before the external call
+        reEntrancyMutex = true;
+        msg.sender.transfer(_weiToWithdraw);
+        // release the mutex after the external call
+        reEntrancyMutex = false;
+    }
+ }
+ ```
+ 
+ ## Real-World Example: The DAO  
+ DAO(분산화된 자율 조직) 공격은 이더리움의 초기 개발단계에서 나타난 주요 공격중에 하나임  
+ 그 당시 컨트랙트는 150만 달러를 가지고 있었고, 재진입 공격 발생했다  
+ 그 결과로 하드포크가 일어나 이더리움 클래식으로 분화됨  
+ 
+# Arithmetic Over/Underflows
+
 
 # Entropy Illusion
 
