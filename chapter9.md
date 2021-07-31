@@ -1,1 +1,23 @@
 Now let’s look at the FibonacciBalance contract. Storage slot[0] now corresponds to the fibonacciLibrary address, and slot[1] corresponds to calculatedFibNumber. It is in this incorrect mapping that the vulnerability occurs. delegatecall preserves contract context. This means that code that is executed via delegatecall will act on the state (i.e., storage) of the calling contract.
+
+
+
+# Entropy Illusion
+
+## The Vulnerability
+
+## Preventative Techniques
+
+## Real-World Example: PRNG Contracts
+
+# External Contract Referencing
+
+## The Vulnerability
+
+## Preventative Techniques
+
+## Real-World Example: Reentrancy Honey Pot
+
+# Short Address/Parameter Attack
+
+
