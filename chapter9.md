@@ -181,6 +181,292 @@ contract EtherStore {
  그 결과로 하드포크가 일어나 이더리움 클래식으로 분화됨  
  
 # Arithmetic Over/Underflows
+EVM 은 integer 의 고정된 크기의 데이터 타입만 구체화한다  
+이것은 integer 변수는 정해진 범위의 숫가만 나타낼 수 있다는 것을 의미함  
+uint8 은 오직 [0, 255] 범위 숫자만 저장할 수 있다  
+256 값을 저장하려고하면 최종 결과는 0 이다.  
+따라서 입력값을 주의해서 다뤄야 함  
+
+## The Vulnerability
+오버나 언더플로우는 고정된 크기 변수를 넘어서는 값을 저장하려고 할때 나타남  
+이런 종류의 공격은 예상할 수 없는 결과를 만들도록함  
+아래는 TimeLock.sol 예제임  
+```
+contract TimeLock {
+
+    mapping(address => uint) public balances;
+    mapping(address => uint) public lockTime;
+
+    function deposit() external payable {
+        balances[msg.sender] += msg.value;
+        lockTime[msg.sender] = now + 1 weeks;
+    }
+
+    function increaseLockTime(uint _secondsToIncrease) public {
+        lockTime[msg.sender] += _secondsToIncrease;
+    }
+
+    function withdraw() public {
+        require(balances[msg.sender] > 0);
+        require(now > lockTime[msg.sender]);
+        uint transferValue = balances[msg.sender];
+        balances[msg.sender] = 0;
+        msg.sender.transfer(transferValue);
+    }
+}
+```
+위 컨트랙트는 시간 납골 천장처럼 작동하도록 설계했음  
+사용자가 이더를 예치하면 최소 1주일 동안 잠긴다  
+사용자가 자신의 비밀키를 넘겨줘야하는 상황에서  
+이와 같은 컨트랙트는 일정 기간동안 이더는 사용될 수 없다  
+공격자는 lockTime 에 관계없이 이더 를 받기위해서 오버플로우를 사용함 수 있음  
+
+공격자는 공격 대상의 키와 해당 주소의 현재 lockTime를 결정할 수 있음  
+이것을 userLockTime 이라고 하자  
+그때 increaseLockTime 함수를 호출할 수 있고, 2^256 - userLockTime 을 인자로 전달한다  
+이것은 오버플로우를 발생시키고, lockTime[msg.sender] = 0 으로 만듦  
+그 이후에 공격자는 withdraw 함수를 호출하여 보상금을 얻는다  
+
+아래는 언더플로우 예제임 
+```
+pragma solidity ^0.4.18;
+
+contract Token {
+
+  mapping(address => uint) balances;
+  uint public totalSupply;
+
+  function Token(uint _initialSupply) {
+    balances[msg.sender] = totalSupply = _initialSupply;
+  }
+
+  function transfer(address _to, uint _value) public returns (bool) {
+    require(balances[msg.sender] - _value >= 0);
+    balances[msg.sender] -= _value;
+    balances[_to] += _value;
+    return true;
+  }
+
+  function balanceOf(address _owner) public constant returns (uint balance) {
+    return balances[_owner];
+  }
+}
+```
+이것은 transfer 함수를 사용해서 참여자간에 토큰을 이동하는 컨트랙트임  
+구멍은 transfer 함수이 있다   
+라인 13에 require 문이 언더플로우를 사용해서 통과할 수 있음  
+한 사용자가 0 잔액이 있다고 하자.  
+그 사용자는 none 제로 _value 와 require 문을 통과하게 transfer 함수를 호출함  
+이것은 balances[msg.sender] = 0 이고 따라서 어떤 양수 값으로 빼주면 결과도 양수가 된다.  
+이것은 라인 14 번에서도 true 이고 잔액이 양수로 치환된다  
+그래서 공격자가 언더플로우 취약점으로 공짜 토큰을 얻게 된다  
+
+## Preventative Techniques
+언더/오버플로우 취약점을 대응하는 규약 기술은 덧셈, 뺄셈, 곱셈 연산자를 수학 라이브러리로 사용한 것임(나눗셈인 필요없음, 0 으로 나누는 것은 EVM 이 중지시킴)  
+OpenZeppelin 이 SafeMath 라이브러리를 제공함  
+아래에는 TimeLock 컨트랙트에 SafeMath 라이브러리 사용 예제임  
+```
+library SafeMath {
+
+  function mul(uint256 a, uint256 b) internal pure returns (uint256) {
+    if (a == 0) {
+      return 0;
+    }
+    uint256 c = a * b;
+    assert(c / a == b);
+    return c;
+  }
+
+  function div(uint256 a, uint256 b) internal pure returns (uint256) {
+    // assert(b > 0); // Solidity automatically throws when dividing by 0
+    uint256 c = a / b;
+    // assert(a == b * c + a % b); // This holds in all cases
+    return c;
+  }
+
+  function sub(uint256 a, uint256 b) internal pure returns (uint256) {
+    assert(b <= a);
+    return a - b;
+  }
+
+  function add(uint256 a, uint256 b) internal pure returns (uint256) {
+    uint256 c = a + b;
+    assert(c >= a);
+    return c;
+  }
+}
+
+contract TimeLock {
+    using SafeMath for uint; // use the library for uint type
+    mapping(address => uint256) public balances;
+    mapping(address => uint256) public lockTime;
+
+    function deposit() external payable {
+        balances[msg.sender] = balances[msg.sender].add(msg.value);
+        lockTime[msg.sender] = now.add(1 weeks);
+    }
+
+    function increaseLockTime(uint256 _secondsToIncrease) public {
+        lockTime[msg.sender] = lockTime[msg.sender].add(_secondsToIncrease);
+    }
+
+    function withdraw() public {
+        require(balances[msg.sender] > 0);
+        require(now > lockTime[msg.sender]);
+        uint256 transferValue = balances[msg.sender];
+        balances[msg.sender] = 0;
+        msg.sender.transfer(transferValue);
+    }
+}
+```
+모든 수학 연산이 SafeMath 라이브러리로 대체된 것을 볼 수 있음  
+
+## Real-World Examples: PoWHC and Batch Transfer Overflow (CVE-2018–10299) 
+Proof of Weak Hands Coin(PoWHC) 은 오버/언더플로우 공격에 좋은 예제임  
+866 이더를 분실했음  
+
+# Unexpected Ether
+일반적으로 컨트랙트에 이더가 보내지면, 폴백 함수나 사전 정의돈 함수가 실행됨  
+하지만 어떤 코드도 실행하지 않고 이더가 컨트랙트에 존재할 2가지 예외 사항이 있음  
+컨트랙트의 모든 이더가 코드 실행에 의지하는 것은 이더가 강제적으로 보내지는 공격에 취약할 수 있음  
+
+## The Vulnerability
+정확한 상태 전환이나 행위 검증에 유용한 공통 방어 프로그래밍 기술은 불변성 체크임  
+이 기술은 불변성 집단을 정의하거나 한 단위 행위 이후에 불변성을 체크하는 것과 관련있음  
+불변성 체크를 실질적으로 불변한지 점검하는 것은 좋은 설계임  
+한 가지 예로서 ERC20 token 에서 totalSupply 는 불변해야함  
+따라서 어느 함수에서도 totalSupply 를 처음으로 초기화한 이후에 값을 변경할 수 없음  
+
+payable 함수 또는 컨트랙트 코드 실행없이 이더를 보낼 수 있는 2가지 방법이 있음  
+#### Self-destruct/suicide
+    어떤 컨트랙트도 selfdestruct 함수를 구현할 수 있음  
+    만약 반환 주소가 컨트랙트라면 폴백 함수뿐만아니라 다른 함수도 호출되지 않음
+    그래서 selfdestruct 함수는 강제적으로 어떤 컨트랙트에도 이더를 보내는데 사용될 수 있음  
+    해당 컨트랙트가 payable 함수가 없어도 됨  
+    이것은 공격자가 selfdestruct(target) 을 호출하는 컨트랙트를 만들수 있음을 의미  
+
+#### Pre-sent ether
+    컨트랙트로 이더를 얻는 또다른 방법은 이더와 함께 컨트랙트 주소를 사전 로드하는 것임
+    컨트랙트 주소는 결정론적임. 
+    즉, 주소는 Keccak-256로 계산됨  
+    해당 인자는 컨트랙트를 만드는 주소의 해시와 컨트랙트를 만드는 트랜잭션의 nonce 임  
+    형태는 address = sha3(rlp.encode([account_address,transaction_nonce]))  
+    이것은 누구나 컨트랙트 주소가 만들어지기 전에 해당 주소를 만들 수 있고, 해당 주소에 이더를 보낼 수 있다는 것을 의미함  
+    따라서 해당 컨트랙트가 만들어졌을때 이더 잔액이 제로가 아님  
+    
+아래 EtherGame.sol 예제를 보자
+```
+contract EtherGame {
+
+    uint public payoutMileStone1 = 3 ether;
+    uint public mileStone1Reward = 2 ether;
+    uint public payoutMileStone2 = 5 ether;
+    uint public mileStone2Reward = 3 ether;
+    uint public finalMileStone = 10 ether;
+    uint public finalReward = 5 ether;
+
+    mapping(address => uint) redeemableEther;
+    // Users pay 0.5 ether. At specific milestones, credit their accounts.
+    function play() external payable {
+        require(msg.value == 0.5 ether); // each play is 0.5 ether
+        uint currentBalance = this.balance + msg.value;
+        // ensure no players after the game has finished
+        require(currentBalance <= finalMileStone);
+        // if at a milestone, credit the player's account
+        if (currentBalance == payoutMileStone1) {
+            redeemableEther[msg.sender] += mileStone1Reward;
+        }
+        else if (currentBalance == payoutMileStone2) {
+            redeemableEther[msg.sender] += mileStone2Reward;
+        }
+        else if (currentBalance == finalMileStone ) {
+            redeemableEther[msg.sender] += finalReward;
+        }
+        return;
+    }
+
+    function claimReward() public {
+        // ensure the game is complete
+        require(this.balance == finalMileStone);
+        // ensure there is a reward to give
+        require(redeemableEther[msg.sender] > 0);
+        uint transferValue = redeemableEther[msg.sender];
+        redeemableEther[msg.sender] = 0;
+        msg.sender.transfer(transferValue);
+    }
+ }
+```
+이 컨트랙트 예제는 자연적인 레이스 조건과 관련된 단순한 게임임  
+플레이어가 단순히 컨트랙트에 0.5 이더를 보낸다  
+플레이어는 세가지 마일스톤 중에 하나는 만족할 것이라는 기대를 가짐  
+마일스톤에 처음으로 도달하면 보상분의 이더를 받고 게임은 끝남   
+
+EtherGame 컨트랙트의 주요 이슈는 라인 14, 32 에서 this.balance 의 잘못된 사용에서 기원함  
+공격자가 selfdestruct 함수를 통해서 작은 양의 이더를 보낸수 있고( 0.1 ),  
+누구도 마일스톤에 도달할 수 없도록 막을 수 있음  
+this.balance 은 현재 0.1 이므로 0.5 에 결고 도달할 수 없고,  
+하지만 다른 플레이어들은 0.5 이더를 계속보내고 있다  
+이것은 라인 18, 21, 24 를 true로 해서 막는다  
+
+
+또한 한 공격자가 10 이더를 보내면, finalMileStone 보다 크므로 모든 보상금을 영원히 못 받게 말을 수 도 있음  
+
+## Preventative Techniques
+이런 종류의 취약점은 this.balance 의 오용 때문임  
+컨트랙트 로직은 가능한 컨트랙트 잔액의 값에 의존한것을 피해야함  
+
+예치된 이더의 정확한 값을 요구한다면, 자신이 정한 변수를 사용해야함  
+그 변수는 payable 함수에서 증가하거나, 안전하게 예치된 이더를 추적할 있게 해야함  
+이런 변수는 selfdestruct 호출에 의해서 보내진 이더에 의해서 영향받지 않게 해야 함  
+
+아래는 EtherGame 컨트랙트 수정된 버전임  
+```
+contract EtherGame {
+
+    uint public payoutMileStone1 = 3 ether;
+    uint public mileStone1Reward = 2 ether;
+    uint public payoutMileStone2 = 5 ether;
+    uint public mileStone2Reward = 3 ether;
+    uint public finalMileStone = 10 ether;
+    uint public finalReward = 5 ether;
+    uint public depositedWei;
+
+    mapping (address => uint) redeemableEther;
+
+    function play() external payable {
+        require(msg.value == 0.5 ether);
+        uint currentBalance = depositedWei + msg.value;
+        // ensure no players after the game has finished
+        require(currentBalance <= finalMileStone);
+        if (currentBalance == payoutMileStone1) {
+            redeemableEther[msg.sender] += mileStone1Reward;
+        }
+        else if (currentBalance == payoutMileStone2) {
+            redeemableEther[msg.sender] += mileStone2Reward;
+        }
+        else if (currentBalance == finalMileStone ) {
+            redeemableEther[msg.sender] += finalReward;
+        }
+        depositedWei += msg.value;
+        return;
+    }
+
+    function claimReward() public {
+        // ensure the game is complete
+        require(depositedWei == finalMileStone);
+        // ensure there is a reward to give
+        require(redeemableEther[msg.sender] > 0);
+        uint transferValue = redeemableEther[msg.sender];
+        redeemableEther[msg.sender] = 0;
+        msg.sender.transfer(transferValue);
+    }
+ }
+```
+여기서 새 변수 depositedWei 를 사용함  
+예치된 이더의 추적용으로 사용함  
+여기서 더 이상 this.balbance 를 사용하지 않음을 주의해서 보라  
+
+# DELEGATECALL
 
 
 # Entropy Illusion
