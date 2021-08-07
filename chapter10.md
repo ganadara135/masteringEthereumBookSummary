@@ -140,8 +140,65 @@
 일단 스마트컨트랙트가 배포되면 소유권, 전송, 접근 권한을 포함한 모든 것을 조정할 수 있음  
 
 # The ERC20 Token Standard
+Fabian Vogelsteller 가 Ethereaum Request for Comments(ERC) 2015년 11월 첫 표준을 소개함  
+ERC20 Token 으로 명명됨   
+ERC20 은 나중에 Ethereum Improvement Proposal 20(EIP-20) 이 되나, 주로 ERC20으로 칭해짐  
 
+ERC20 은 교환가능한 토큰의 표준이 됨.  
+따라서 다른 ERC20 토큰들과 상호교환이 가능하고, 고유한 속성은 없음  
 
+ERC20 표준은 토큰을 구현한 컨트랙트의 공통 인터페이스를 정의한 것임  
+그에따라서 다른 토큰들에 접근하여 같은 방식으로 사용될 수 있음  
+인터페이스는 표준 기능에 필요한 함수들로 구성되어 있고,  
+일부 옵션인 함수와 속성을 개발자가 추가할 수 있음  
+
+### ERC20 required functions and events
+ERC20을 준수하는 토큰 컨트랙트는 최소한 다음의 함수와 이벤트를 제공해야함  
+
++ totalSupply
+현재 존재하는 토큰의 총 단위 값을 알려줌  
++ balanceOf
+주어진 주소의 잔고값을 알 수 있음  
++ trasfer
+주소와 금액이 인자로 주워지고, 본 함수를 시행하는 자의 잔고에서 인자의 주소로 해당 금액만큼 전송함   
++ transferFrom
+보내는자, 수령자, 금액을 인자로 넣음  
+한 잔고에서 다른 잔고로 보낼때 사용되고 아래 apporve 와 함께 사용됨  
++ approve
+수령자 주소와 금액을 인자로 주워짐  
++ allowance
+소유자 주소와 사용자 주소가 주워지며,  
+리턴값은 사용자에게 소유자로부터 인출 허용된 남은 양임  
++ Transfer  
+성공적인 transfer or transferFrom 시에 발생하는 이벤트임  
++ Approval
+approve 호출이 성공했을 시에 발생하는 이벤트 로그  
+
+### ERC20 optional functions
+옵션 함수 목륵은 다음과 같음  
+
++ name  
+사람이 읽을 수 있는 형태의 토큰 이름을 알려줌 (US Dollars)  
++ symbol  
+토큰의 심볼을 알려줌(USD)  
++ decimals  
+토큰의 수량을 나누기 위해서 사용되는 소수점 값을 알려줌  
+
+### The ERC20 interface defined in Solidity
+```
+contract ERC20 {
+   function totalSupply() constant returns (uint theTotalSupply);
+   function balanceOf(address _owner) constant returns (uint balance);
+   function transfer(address _to, uint _value) returns (bool success);
+   function transferFrom(address _from, address _to, uint _value) returns
+      (bool success);
+   function approve(address _spender, uint _value) returns (bool success);
+   function allowance(address _owner, address _spender) constant returns
+      (uint remaining);
+   event Transfer(address indexed _from, address indexed _to, uint _value);
+   event Approval(address indexed _owner, address indexed _spender, uint _value);
+}
+```
 
 
 
