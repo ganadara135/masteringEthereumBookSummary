@@ -258,8 +258,16 @@ AliceCoin 컨트랙트는 Alice 주소로부터 Bob 주소로 잔액을 전송�
 AliceICO 컨트랙트는 Alice 가 설정한 허용한도내에서 transferFrom 함수을 여려 차례 호출할 수 있음  
 AliceICO 컨트랙트는 얼마만큼의 AliceCoin 토큰이 허용여부 함수 호출로 판매할 수 있는지 추적할 수 있음  
 
-### ERC20 implementations(구현)
+### ERC20 implementations(구현)  
+ERC20 기준 준수 토큰은 솔리디티 코드 30 라인으로 구현 가능함  
+EIP-20 표준에서 언급되는 2 가지 구현물이 있음  
 
++ Consensys EIP20  
+ERC20 기준 준수 토큰이고 단순하고 보기 쉬운 구현물임   
++ OpenZeppelin StandardToken  
+추가적인 보안 주의사항이 강화되었고, 펀딩 갭, 경매방식, 투자 스케줄과 같은 기능을 OpenZeppelin 라이브러리를 통해서 사용할 수 있음  
+
+# Launching Our Own ERC20 Token
 
 
 
