@@ -237,7 +237,8 @@ approve 이후에 transferFrom 을 통해서 처리함
 |Note|Initial Coin Offering(ICO) 의 용어는 주식 공개 시장에서 사용되는 Initial Public Offering(IPO) 에서 유래함|  
 
 ![alt text]
-(https://github.com/ethereumbook/ethereumbook/raw/develop/images/approve_transferFrom_workflow.png "Figure 1")  <br>
+(https://github.com/ethereumbook/ethereumbook/raw/develop/images/approve_transferFrom_workflow.png)
+<br>
 
 approve & transferFrom 워크플로우는 2 단계 트랜잭션이 필요함   
 위 그림에서 Alice 가 AliceCoin 토큰 구매자인 Bob 에게 절반의 토큰 판매를 허용하기 원함  
