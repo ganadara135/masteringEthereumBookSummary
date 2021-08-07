@@ -236,8 +236,29 @@ approve 이후에 transferFrom 을 통해서 처리함
 |--|--|
 |Note|Initial Coin Offering(ICO) 의 용어는 주식 공개 시장에서 사용되는 Initial Public Offering(IPO) 에서 유래함|  
 
+![alt text]
+(https://github.com/ethereumbook/ethereumbook/raw/develop/images/approve_transferFrom_workflow.png "Figure 1")  <br>
 
+approve & transferFrom 워크플로우는 2 단계 트랜잭션이 필요함   
+위 그림에서 Alice 가 AliceCoin 토큰 구매자인 Bob 에게 절반의 토큰 판매를 허용하기 원함  
+Alice 가 AliceCoin ERC20 컨트랙트를 발행하고 모든 초기 토큰을 자신의 주소로 보냄  
+또한 Alice 는 이더로 토큰을 살 수 있는 AliceICO 컨트랙트를 발행함  
+다음으로 Alice 는 approve & transferFrom 워크플로우를 가동함  
+Alice는 AliceCoin 컨트랙트로 총 토큰의 절반값과 AliceICO 컨트랙트 주소를 인자값으로 허용을 요청하는 approve 을 호출함  
+이것은 Approval 이벤트를 발생시킴  
+이제 AliceICO 컨트랙트는 AliceCoin 을 판매할 수 있게 됨  
 
+AliceICO 컨트랙트가 Bob 에게서 이더를 받게되면, AliceCoin 을 Bob 에게 보내는 것임 필요힘   
+AliceICO 컨트랙트내에 AliceCoin 과 이더의 교환 비율이 설정되어 있음  
+AliceICO 컨트랙트가 AliceCoin transferForm 함수를 호출할때  
+Alice 주소를 보내는자로 Bob 주소를 수령자로 설정하고  
+얼만큼의 AliceCoin 토큰이 Bob 에게 전송되어야 하는지 교환 비율값을 인자로 사용할 수 있음   
+AliceCoin 컨트랙트는 Alice 주소로부터 Bob 주소로 잔액을 전송하고  
+이때 Transfer 이벤트가 발생함  
+AliceICO 컨트랙트는 Alice 가 설정한 허용한도내에서 transferFrom 함수을 여려 차례 호출할 수 있음  
+AliceICO 컨트랙트는 얼마만큼의 AliceCoin 토큰이 허용여부 함수 호출로 판매할 수 있는지 추적할 수 있음  
+
+### ERC20 implementations(구현)
 
 
 
