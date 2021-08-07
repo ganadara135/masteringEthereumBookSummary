@@ -200,6 +200,43 @@ contract ERC20 {
 }
 ```
 
+### ERC20 data structures
+ERC20 은 2 가지 데이터 구조체를 가짐  
+하나는 잔고 추적용도이고  
+또하나는 허가여부를 추적하는 용도임  
+위 데이터 구조체는 mapping 형으로 구현됨  
+
+소유에 대한 데이터 매핑은 아래와 같은 형태로 구현되고  
+모든 transfer 은 단순히 한 잔고에서 빼고, 다른 잔고로 더 해주는 것임  
+```
+mapping(address => uint256) balances;
+```
+
+두 번째 데이터 구조체는 허용여부의 데이터 매핑이고 아래 형태와 같음  
+ERC20 컨트랙트는 2차원 매핑으로 허용여부를 추적하고,  
+토큰 소유자의 주소로 주요 키로 해서, 사용자 주소와 허용한 금액을 매핑함  
+```
+mapping (address => mapping (address => uint256)) public allowed;
+```
+
+# ERC20 workflows: "transfer" and "approve & transferFrom"
+ERC20 토큰 표준은 2 개의 전송 함수가 있음  
+
+ERC20 은 2 가지 워크플로우를 허용함  
+첫번째는 transfer 함수를 통해서 싱글 트랜잭션으로 직접적으로 처림함  
+이런 워크플로우는 지갑에서 지갑으로 토큰을 보낼때 사용됨  
+대부분의 토큰 트랜잭션이 transfer 워크플로우를 통해서 처리됨  
+
+두번째는 2 단계 트랜잭션이 필요한 워크플로우임  
+approve 이후에 transferFrom 을 통해서 처리함  
+이번 워크플로우는 토큰 소유자가 자신의 제어권을 다른 주소에게 허용하는 것임  
+이런 워크플로우는 컨트랙트의 토큰 분배시에 권한을 위임할 때 종종 사용됨  
+예 거래소, 크라우드세일, ICO 등  
+|  |  |
+|--|--|
+|Note|Initial Coin Offering(ICO) 의 용어는 주식 공개 시장에서 사용되는 Initial Public Offering(IPO) 에서 유래함|  
+
+
 
 
 
