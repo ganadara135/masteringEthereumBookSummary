@@ -219,7 +219,7 @@ ERC20 컨트랙트는 2차원 매핑으로 허용여부를 추적하고,
 mapping (address => mapping (address => uint256)) public allowed;
 ```
 
-# ERC20 workflows: "transfer" and "approve & transferFrom"
+## ERC20 workflows: "transfer" and "approve & transferFrom"
 ERC20 토큰 표준은 2 개의 전송 함수가 있음  
 
 ERC20 은 2 가지 워크플로우를 허용함  
@@ -236,8 +236,8 @@ approve 이후에 transferFrom 을 통해서 처리함
 |--|--|
 |Note|Initial Coin Offering(ICO) 의 용어는 주식 공개 시장에서 사용되는 Initial Public Offering(IPO) 에서 유래함|  
 
-![alt text]
-(https://github.com/ethereumbook/ethereumbook/raw/develop/images/approve_transferFrom_workflow.png)
+![alt text](https://github.com/ethereumbook/ethereumbook/raw/develop/images/approve_transferFrom_workflow.png)
+
 <br>
 
 approve & transferFrom 워크플로우는 2 단계 트랜잭션이 필요함   
@@ -269,6 +269,105 @@ ERC20 기준 준수 토큰이고 단순하고 보기 쉬운 구현물임
 추가적인 보안 주의사항이 강화되었고, 펀딩 갭, 경매방식, 투자 스케줄과 같은 기능을 OpenZeppelin 라이브러리를 통해서 사용할 수 있음  
 
 # Launching Our Own ERC20 Token
+토큰을 직접 만들어 발생해 보자  
+아래 예제를 실행하기 위해선 Truffle 프레임워크 설치해야 함  
+아래 토큰은 "Mastering Ethereum Token" 이라고하고, 심볼은 "MET"  
+
+아래와 같이 Truffle 프로젝트 디렉토리를 초기화 하고, 모든 질문에 디폴드 응답을 함  
+```
+$ mkdir METoken
+$ cd METoken
+METoken $ truffle init
+METoken $ npm init
+```
+그러면 아래와 같은 디렉토리 구조가 나옴  
+```
+METoken/
++---- contracts
+|   `---- Migrations.sol
++---- migrations
+|   `---- 1_initial_migration.js
++---- package.json
++---- test
+`---- truffle-config.js
+```
+truffle-config.js 설정 파일을 자신의 Truffle 환경에 맞게 설정함  
+자신의 테스트 비밀키나 배포를 위한 환경 정보는 같은 폴더의 .env 확장자로 저장함  
+자신의 MetaMask 로 부터 테스트 네트워크 비밀키를 추출할 수도 있음  
+최종 디렉토리 구조는 아래 처럼 보일 것임  
+```
+METoken/
++---- contracts
+|   `---- Migrations.sol
++---- migrations
+|   `---- 1_initial_migration.js
++---- package.json
++---- test
++---- truffle-config.js
+`---- .env *new file*
+```
+
+OpenZeppelin 라이브러리는 아래와 같이 설치할 수 있음  
+```
+$ npm install openzeppelin-solidity@1.12.0
+
++ openzeppelin-solidity@1.12.0
+added 1 package from 1 contributor and audited 2381 packages in 4.074s
+```
+openzeppelin-solidity 팩키지는 250 개 파일을 node_modules 디렉토리 아래에 추가함   
+OpenZeppelin 라이브러리는 ERC20 토큰 이외에 많은 기능이 있으나 여기선 일부만 사용함   
+
+METoken.sol 이라는 명으로 토큰 컨트랙트를 작성하자. 소스코드는 Github 링크주소에서 받음  
+
+```
+link:code/truffle/METoken/contracts/METoken.sol[]
+```
+METoken.sol 구조는 소스코드를 직접 확인하라  
+아래와 같이 truffle 로 컴파일한다  
+```
+$ truffle compile
+Compiling ./contracts/METoken.sol...
+Compiling ./contracts/Migrations.sol...
+Compiling openzeppelin-solidity/contracts/math/SafeMath.sol...
+Compiling openzeppelin-solidity/contracts/token/ERC20/BasicToken.sol...
+Compiling openzeppelin-solidity/contracts/token/ERC20/ERC20.sol...
+Compiling openzeppelin-solidity/contracts/token/ERC20/ERC20Basic.sol...
+Compiling openzeppelin-solidity/contracts/token/ERC20/StandardToken.sol...
+```
+위에 보이는 것처럼 truffle 이 OpenZeppelin 라이브러리로 부터 필요한 의존성을 끌어와서 컴파일 함  
+
+다음으로 METoken 컨트랙트를 배포하기 위해서 migration 스크립트를 사용함  
+2_deploy_contracts: METoken 배포하기 위한 전환  
+```
+link:code/truffle/METoken/migrations/2_deploy_contracts.js[]
+```
+이더리움 테스트 네트워크에 배포하기전에 로컬 블록체인을 가동하자   
+ganache 블록체인을 시작하고, 아래처럼 커맨드 라인으로 가능함  
+ganache 가 가동되어야 METoken 컨트랙트를 배포할 수 있다  
+```
+$ truffle migrate --network ganache
+Using network 'ganache'.
+
+Running migration: 1_initial_migration.js
+  Deploying Migrations...
+  ... 0xb2e90a056dc6ad8e654683921fc613c796a03b89df6760ec1db1084ea4a084eb
+  Migrations: 0x8cdaf0cd259887258bc13a92c0a6da92698644c0
+Saving successful migration to network...
+  ... 0xd7bc86d31bee32fa3988f1c1eabce403a1b5d570340a3a9cdba53a472ee8c956
+Saving artifacts...
+Running migration: 2_deploy_contracts.js
+  Deploying METoken...
+  ... 0xbe9290d59678b412e60ed6aefedb17364f4ad2977cfb2076b9b8ad415c5dc9f0
+  METoken: 0x345ca3e014aaf5dca488057592ee47305d9b3e10
+Saving successful migration to network...
+  ... 0xf36163615f41ef7ed8f4a8f192149a0bf633fe1a2398ce001bf44c43dc7bdda0
+Saving artifacts...
+```
+ganache 콘솔에서 배포작업을 통해서 새로운 트랜잭션 생성된 것을 아래처럼 볼 수 있음  
+![가나시 확인](https://github.com/ethereumbook/ethereumbook/raw/develop/images/ganache_metoken.png)
+<br>
+
+## Interacting with METoken using the Truffle console
 
 
 
