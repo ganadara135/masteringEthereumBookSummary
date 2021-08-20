@@ -7,6 +7,8 @@ Web3 DApp 은 애플리케이션 나머지 부분을 분권화하는 것임: 저
 ![Dapp image](https://github.com/ethereumbook/ethereumbook/blob/develop/images/web3suite.png)  
 |  |  |
 |--|--|
-|Warning|분권화된 앱은 대담한 비전임. DApp 이란 용어는 스마트컨트랙트와 연동하는 웹프런트엔드에 종종 사용되나, 대부분은 중앙화된 앱(CApps)이므로 주의하라|
-본 챕터에서 DApp 샘플로 옥션 플랫폼을 개발하고 배포할 것임.  
+|Warning|분권화된 앱은 대담한 비전임. DApp 이란 용어는 스마트컨트랙트와 연동하는 웹프런트엔드에 종종 사용되나, 대부분은 중앙화된 앱(CApps)이므로 주의하라.|  
+
+본 챕터에서 DApp 샘플로 옥션 플랫폼을 개발하고 배포할 것임.
+
 # What is a DApp?
