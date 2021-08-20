@@ -81,8 +81,91 @@ web3.js 는 프런트엔드 자원과 번들링 되고, 웹서버를 통해서 �
 아래에서 그 예를 보자  
 
 ### IPFS
+Inter-Planetary File Systems(IPFS) 는 P2P 네트워크상에서 피어간에 저장된 객체를 분산하는 분권화된 콘텐츠 어드레서블 저장 시스템임 
+"컨텐츠 어드레서블"은 각각의 컨텐츠가 해시화되고 해당 해시는 각 파일을 구분하기 위해서 사용된다는 것을 의미한다  
+당연히 해당 해시를 IPFS 노드에게 요청하면 매칭된 컨텐츠(파일)을 추출할 수 있음  
+
+IPFS 는 웹 애플리케이션 전달을 위한 프로토콜 옵션으로써 HTTP를 대체하는 것이 목표임  
+단독 서버에 웹 어플을 저장하는 것을 대신해서 파일을 IPFS 에 저장할 수 있고  
+어떤 IPFS 노드에서든 추출할 수 있음  
 
 ### Swarm
+Swarm 은 IPFS 유사한 또하나의 컨텐츠 어드레셔블 P2P 저장 시스템임  
+Swarm 은 이더리움 재단에서 만들었고 Go-Ethereum 슈트 툴중에 하나임  
+Swarm 은 중앙화된 웹 서버 대신해 분권화된 P2P 시스템으로 부터 웹사이트를 접근하게 해준다  
 
+## Decentralized Message Communications Protocols
+프로세스간 통신이란 애플리케이션 사이나 다른 애플리케이션 사이 또는 애플리케이션 사용자간에 메시지를 교환할 수 있다는 것을 의미함  
+전통적으로 이런 기능은 중앙화된 서버에 의존해서 구현된다  
+하지만, P2P 네트워크를 위에서 메시지 전송을 통해서 서버 기반 프로토콜에 비해서 다양한 분권화된 대안이 있음  
+Whisper 가 DApp을 위한 가장 유명한 P2P 메시징 프로토콜임  
 
+마지막 단계의 분권화되어야 하는 어플은 네임 해석 서비스임  
+
+# A Basic DApp Example: Auction DApp
+
+![erc721](https://github.com/ethereumbook/ethereumbook/raw/develop/images/auction_diagram.png)  
+
+## Auction DApp: Backend Smart Contracts
+
+## DApp governance
+
+## Auction DApp: Frontend User Interface
+
+![Auction Dapp](https://github.com/ethereumbook/ethereumbook/raw/develop/images/auction_dapp_home_screen.png)  
+
+# Further Decentralizing the Auction DApp
+
+# Storing the Auction DApp on Swarm
+
+## Preparing Swarm
+
+![Welcom Swarm](https://github.com/ethereumbook/ethereumbook/raw/develop/images/swarm-gateway.png)  
+
+## Uploading Files to Swarm
+
+# The Ethereum Name Service (ENS)
+
+## History of Ethereum Name Services
+
+## The ENS Specification
+## Bottom Layer: Name Owners and Resolvers
+## The Namehash algorithm
+## How to choose a valid name
+### Root node ownership
+### Resolvers
+
+## Middle Layer: The .eth Nodes
+### Vickrey auctions
+## Top Layer: The Deeds
+### Registering a Name
+![Timeline](https://github.com/ethereumbook/ethereumbook/raw/develop/images/ens-flow.png)  
+
+![mycrypto.com](https://github.com/ethereumbook/ethereumbook/raw/develop/images/ens-checkname.png)  
+
+![StartAuction](https://github.com/ethereumbook/ethereumbook/raw/develop/images/ens-auction.png)  
+
+![ENSname](https://github.com/ethereumbook/ethereumbook/raw/develop/images/ens-bid.png)  
+
+![metamask](https://github.com/ethereumbook/ethereumbook/raw/develop/images/ens-metamask-bid.png)  
+
+# Managing Your ENS Name
+![eth](https://github.com/ethereumbook/ethereumbook/raw/develop/images/ens-manager.png)  
+
+## Creating an ENS subdomain
+![manager](https://github.com/ethereumbook/ethereumbook/raw/develop/images/ens_manager_add_subdomain.png)  
+
+## ENS Resolvers
+
+![resolver](https://github.com/ethereumbook/ethereumbook/raw/develop/images/ens-manager-set-default-resolver.png)  
+
+## Resolving a Name to a Swarm Hash (Content)
+
+![set](https://github.com/ethereumbook/ethereumbook/raw/develop/images/ens-manager-set-content.png)  
+
+# From App to DApp
+
+![architecture](https://github.com/ethereumbook/ethereumbook/raw/develop/images/auction_dapp_final_architecture.png)  
+
+# Conclusions
 
