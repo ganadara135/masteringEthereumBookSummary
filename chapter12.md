@@ -191,9 +191,72 @@ $ truffle migrate --network ropsten
 ```
 
 ## DApp governance
+Auction DApp 에 2개 스마트컨트랙트를 소스 코드를 보면, 일부 중요한 것을 볼 수 있음: DApp 에 대해서 특별한 권한을 갖고 있는 특별 계정이나 역할이 없음.  
+각 옥션은 특별 능력을 가진 오너는 있으나 Auction DApp 자체는 특별 권한 사용자가 없음  
+
+이것은 DApp 통제를 분권화하기 위한 의도적인 선택임  
+배포 이후에 어떤 통제도 포기한 것임  
+대조적으로 일부 DApp 들은 특별한 능력이 있는 특권 계정을 갖고 있음  
+주로 DApp 컨트랙트를 파쇄하거나, 설정자료를 변경하거나, 특정 작동을 거부하는 능력임  
+대개 이런 통제 기능은 DApp 상에 버그나 알수없는 문제가 발생했을때 대응하기 위해서 넣음  
+
+통제 이슈는 특별히 해결하기 어려운 문제중에 하나이므로, 양날의 칼임  
+한 쪽의 특별한 계정 사용은 위험함: 오염되었을때, DApp 의 보안을 침범할 수 있음  
+다른 한 쪽은 어떤 특별한 계정이 없으므로, 버그 발생시에 복구할 수 있는 옵션이 없음  
+DAO 가 특별 계정을 사용하지않는 예의 DApp 이고, Bancor 가 특별 계정 사용으로 공격 받았던 예의 DApp 의 예임  
 
 ## Auction DApp: Frontend User Interface
+Auction DApp 컨트랙트가 배포되면 자바스크립트 콘솔이나 web3.js 같은 것을 통해서 상호작동할 수 있음  
+본 Auction DApp 사용자 인터페이스는 구글의 Vue2/Vuetify 자바스크립트 프레임워크를 사용해서 만들어짐  
 
+전체 컨트랙트는 Masterting Ethereum 원본 링크에서 참고하고  
+디렉토리 구조는 아래와 같음  
+```
+frontend/
+|-- build
+|   |-- build.js
+|   |-- check-versions.js
+|   |-- logo.png
+|   |-- utils.js
+|   |-- vue-loader.conf.js
+|   |-- webpack.base.conf.js
+|   |-- webpack.dev.conf.js
+|   `-- webpack.prod.conf.js
+|-- config
+|   |-- dev.env.js
+|   |-- index.js
+|   `-- prod.env.js
+|-- index.html
+|-- package.json
+|-- package-lock.json
+|-- README.md
+|-- src
+|   |-- App.vue
+|   |-- components
+|   |   |-- Auction.vue
+|   |   `-- Home.vue
+|   |-- config.js
+|   |-- contracts
+|   |   |-- AuctionRepository.json
+|   |   `-- DeedRepository.json
+|   |-- main.js
+|   |-- models
+|   |   |-- AuctionRepository.js
+|   |   |-- ChatRoom.js
+|   |   `-- DeedRepository.js
+|   `-- router
+|       `-- index.js
+```
+컨트랙트를 배포후에 프런트엔드 설정파일(frontend/src/config.js) 에서 DeedRepository 와 AuctionRepository 컨트랙트 주소를 수정하라  
+프런트엔드 애플리케이션은 JSON-RPC 와 WebSocket 인터페이스를 통해서 이더리움 노드에 접근할 수 있음  
+프런트엔드 설정을 완료후에 로컬 머신에서 웹서버를 아래와 같이 가동함  
+```
+$ npm install
+$ npm run dev
+```
+Auctin DApp 프런트엔드 가동하고 웹브라우저에서 아래 주소로 접근할 수 있음  
+http://localhost:8080  
+웹브라우저에서는 아래와 같은 화면이 나타남  
 ![Auction Dapp](https://github.com/ethereumbook/ethereumbook/raw/develop/images/auction_dapp_home_screen.png)  
 
 # Further Decentralizing the Auction DApp
