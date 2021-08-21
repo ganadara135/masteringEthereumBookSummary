@@ -260,14 +260,129 @@ http://localhost:8080
 ![Auction Dapp](https://github.com/ethereumbook/ethereumbook/raw/develop/images/auction_dapp_home_screen.png)  
 
 # Further Decentralizing the Auction DApp
+DApp 을 더 분권화해보자  
+AuctionRepository 컨트랙트는 누구에게나 오픈되어있고 어떤 감시로부터도 독립적으로 작동함  
+일단 배포되면 가동을 멈추지 않고 어떤 경매도 통제 받지 않음  
+각 경매는 검열과 본인인증없이 경매하는 동안에 누구하든 메시지 교환할 수 있는 분리된 채팅방이 있음  
+연관된 이미지나 설명문 같은 다양한 경매 자원들이 Swarm 에 저장되므로 검열이 힘듦  
+누구둔지 자신의 로컬 머신에 Vue 프런트엔드를 돌리거나 수동으로 직접 트랜잭션을 만들어서 Auction DApp 과 상호작용할 수 있음  
+
+여기서 DApp 을 더 분권화하고 회복력있게 만들수 있음  
++ 모든 애플리케이션 코드를 Swarm 이나 IPFS 에 저장함  
++ 이더리움 이름 해석 서비스를 통해서 DApp 에 접근함  
 
 # Storing the Auction DApp on Swarm
+Auction DApp 은 이미 각 경매를 위한 아이콘 이미지를 저장하기 위해서 Swarm 을 사용하고 있음  
+이것은 비싼 이더리움에 데이터를 저장하는 것보단 훨씬 효율적인 방식임  
+또는 웹서버나 파일서버처럼 중앙화된 서비스에 저장하는 것보다 더 회복력도 좋음  
+
+하지만 여기서 한 발짝 더 나가서, DApp 의 프런트엔드 전체를 Swarm 에 저장해서  
+웹서버에서 가동하는 게 아니라 Swarm 노드 직접적으로 운영하게 할 수 있음  
 
 ## Preparing Swarm
+Swarm 을 설치하고 Swarm 노드를 가동하자  
+일단 Swarm 이 설치하면 버전 체크 명령어로 Swarm 이 제대로 작동하는 확인할 수 있음  
+```
+$ swarm version
+Version: 0.3
+Git Commit: 37685930d953bcbe023f9bc65b135a8d8b8f1488
+Go Version: go1.10.1
+OS: linux
+```
+Swarm 을 가동후에 Geth 에 연결하거나, JSON-RPC API 에 연결하기 위한 방법을 Swarm 에 알려줘야하는데 이것은 아래 링크를 참고하라  
+https://swarm-guide.readthedocs.io/en/latest/gettingstarted.html
 
+Swarm 을 가동하면 아래와 같은 결과를 볼 수 있음  
+```
+Maximum peer count                       ETH=25 LES=0 total=25
+Starting peer-to-peer node               instance=swarm/v0.3.1-225171a4/linux...
+connecting to ENS API                    url=http://127.0.0.1:8545
+swarm[5955]: [189B blob data]
+Starting P2P networking
+UDP listener up                          self=enode://f50c8e19ff841bcd5ce7d2d...
+Updated bzz local addr                   oaddr=9c40be8b83e648d50f40ad3... uaddr=e
+Starting Swarm service
+9c40be8b hive starting
+detected an existing store. trying to load peers
+hive 9c40be8b: peers loaded
+Swarm network started on bzz address: 9c40be8b83e648d50f40ad3d35f...
+Pss started
+Streamer started
+IPC endpoint opened                      url=/home/ubuntu/.ethereum/bzzd.ipc
+RLPx listener up                         self=enode://f50c8e19ff841bcd5ce7d2d...
+```
+Swarm 노드가 제대로 작동하는지는 로컬 Swarm 게이트웨이 웹 인터페이스로 접근하여 확인할 수 있음  
+http://localhsot:8500  
+위 주소로 접근하면 아래와 같은 화면을 볼 수 있고, Swarm hash 나 ENS 이름을 넣어서 조회할 수 있음  
 ![Welcom Swarm](https://github.com/ethereumbook/ethereumbook/raw/develop/images/swarm-gateway.png)  
 
 ## Uploading Files to Swarm
+로컬 Swarm 노드와 게이트웨이가 작동중이면 파일을 업로드할 수 있고,  
+파일 해시 값을 통해서 어떤 Swarm 노드에서도 접근할 수 있음  
+아래와 같이 파일을 업로드할 수 있음  
+```
+$ swarm up code/auction_dapp/README.md
+ec13042c83ffc2fb5cb0aa8c53f770d36c9b3b35d0468a0c0a77c97016bb8d7c
+```
+
+하나의 파일을 업로드하기는 직관적이라서 쉬우나, 전체 DApp 프런트엔드를 업로드하기는 복잡함  
+다양한 DApp 자원(HTML,CSS,JS)들이 서로간의 내부 참조하기 때문임  
+일반적으로 웹서버는 URL을 로컬 파일로 변환하고 정확한 자원과 연결함  
+우리는 DApp 을 패키징하여서 Swarm 에서 같은 효과를 얻음  
+
+Auction DApp 을 아래와 같이 패키징함  
+```
+$ cd code/auction_dapp/frontend
+$ npm run build
+
+> frontend@1.0.0 build /home/aantonop/Dev/ethereumbook/code/auction_dapp/frontend
+> node build/build.js
+
+Hash: 9ee134d8db3c44dd574d
+Version: webpack 3.10.0
+Time: 25665ms
+Asset     Size
+static/js/vendor.77913f316aaf102cec11.js  1.25 MB
+static/js/app.5396ead17892922422d4.js   502 kB
+static/js/manifest.87447dd4f5e60a5f9652.js  1.54 kB
+static/css/app.0e50d6a1d2b1ed4daa03d306ced779cc.css  1.13 kB
+static/css/app.0e50d6a1d2b1ed4daa03d306ced779cc.css.map  2.54 kB
+static/js/vendor.77913f316aaf102cec11.js.map  4.74 MB
+static/js/app.5396ead17892922422d4.js.map   893 kB
+static/js/manifest.87447dd4f5e60a5f9652.js.map  7.86 kB
+index.html  1.15 kB
+
+Build complete.
+```
+위 명령에 결과로 새로운 폴더가 생성됨: code/auction_dapp/frontend/dist  
+```
+dist/
+|-- index.html
+`-- static
+    |-- css
+    |   |-- app.0e50d6a1d2b1ed4daa03d306ced779cc.css
+    |   `-- app.0e50d6a1d2b1ed4daa03d306ced779cc.css.map
+    `-- js
+        |-- app.5396ead17892922422d4.js
+        |-- app.5396ead17892922422d4.js.map
+        |-- manifest.87447dd4f5e60a5f9652.js
+        |-- manifest.87447dd4f5e60a5f9652.js.map
+        |-- vendor.77913f316aaf102cec11.js
+        `-- vendor.77913f316aaf102cec11.js.map
+```
+아래와 같이 DApp 전체를 Swarm 에 업로드 할 수 있음  
+index.html 이 기본 패스라고 지시할 수 있음  
+```
+$ swarm --bzzapi http://localhost:8500 --recursive \
+  --defaultpath dist/index.html up dist/
+
+ab164cf37dc10647e43a233486cdeffa8334b026e32a480dd9cbd020c12d4581
+```
+이제 아래와 같이 Swarm URL 로 접근할 수 있음  
+```
+bzz://ab164cf37dc10647e43a233486cdeffa8334b026e32a480dd9cbd020c12d4581
+```
+위 URL 이 사용자 편의적이지 않다.  다음 섹션에서 Ethereum Name Service 를 알아본다  
 
 # The Ethereum Name Service (ENS)
 
