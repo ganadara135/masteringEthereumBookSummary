@@ -103,10 +103,92 @@ Whisper 가 DApp을 위한 가장 유명한 P2P 메시징 프로토콜임
 마지막 단계의 분권화되어야 하는 어플은 네임 해석 서비스임  
 
 # A Basic DApp Example: Auction DApp
+본 섹션에서는 DApp 예제로 만들면서 다양한 분권화 지원 툴을 살펴볼 것임   
+Auction DApp 은 사용자가 "deed" 토큰을 등록하도록 한다   
+deed 토큰은 집, 차, 상표 같은 고유한 자산을 나타냄  
+토큰이 등록되면 토큰 소유권이 Auction DApp 에서 전송됨  
+이것은 판매를 위해서 목록화된다는 것을 의미함  
+Auction DApp 이 등록된 토큰을 목록화화면 여타 사용자들이 경매에 참여할 수 있음  
+각각의 경매동안 사용자들은 해당 경매를 위해 만들어진 채팅방에 참여할 수 있음  
+경매가 완료되면, deed 토큰 소유권이 경매 낙찰자에게 전송됨  
 
+경매 DApp 의 주요 요소는 다음과 같음  
++ ERC721 교환 불가 deed 토큰 구현한 스마트컨트랙트(DeedRepository)  
++ deed 을 팔기위한 경매를 구현한 스마트컨트랙트(AuctionRepository)  
++ Vue/Vuetify 자바스크립트 프레임워크를 사용하는 웹 프런트엔드  
++ MetaMask 나 다른 클라이언트를 통해서 이더리움 체인에 연결하기 위한 web3.js 라이브러리  
++ 이미지 같은 자원을 저장하기 위한 Swarm 클라이언트  
++ 모든 참여자들이 경매당 만들어진 채팅방을 만들기 위한 Whisper 클라이언트  
 ![erc721](https://github.com/ethereumbook/ethereumbook/raw/develop/images/auction_diagram.png)  
 
 ## Auction DApp: Backend Smart Contracts
+본 경매 DApp 은 두 가지 스마트컨트랙트가 지원됨  
+애플리케이션을 지원하기 위해 이더리움 블록체인에 배포하는게 필요함: AuctionRepository, DeedRepository  
+
+DeedRepository.sol: ERC721 deed 토큰 소스 위치  
+```
+link:code/auction_dapp/backend/contracts/DeedRepository.sol[]
+```
+
+Auction DApp 은 경매를 위한 토큰을 발행하고 추적하기 위해서 DeedRepository 컨트랙트를 사용함  
+경매 자체는 AuctionRepository 컨트랙트에 의해서 조율됨  
+아래에 AuctionRepository 컨트랙트의 주요 기능과 데이터 구조를 보여줌  
+전체 컨트랙트는 Masterting Ethereum 원본 링크에서 참고하라  
+```
+contract AuctionRepository {
+
+    // Array with all auctions
+    Auction[] public auctions;
+
+    // Mapping from auction index to user bids
+    mapping(uint256 => Bid[]) public auctionBids;
+
+    // Mapping from owner to a list of owned auctions
+    mapping(address => uint[]) public auctionOwner;
+
+    // Bid struct to hold bidder and amount
+    struct Bid {
+        address from;
+        uint256 amount;
+    }
+
+    // Auction struct which holds all the required info
+    struct Auction {
+        string name;
+        uint256 blockDeadline;
+        uint256 startPrice;
+        string metadata;
+        uint256 deedId;
+        address deedRepositoryAddress;
+        address owner;
+        bool active;
+        bool finalized;
+    }
+```
+AuctionRepository 컨트랙트는 아래 함수들로 모든 경매 기능 다룸  
+```
+getCount()
+getBidsCount(uint _auctionId)
+getAuctionsOf(address _owner)
+getCurrentBid(uint _auctionId)
+getAuctionsCountOfOwner(address _owner)
+getAuctionById(uint _auctionId)
+createAuction(address _deedRepositoryAddress, uint256 _deedId,
+              string _auctionTitle, string _metadata, uint256 _startPrice,
+              uint _blockDeadline)
+approveAndTransfer(address _from, address _to, address _deedRepositoryAddress,
+                   uint256 _deedId)
+cancelAuction(uint _auctionId)
+finalizeAuction(uint _auctionId)
+bidOnAuction(uint _auctionId)
+```
+트러블을 사용해서 이더리움 블록체인 테스트넷( Ropsten) 에 위 컨트랙트를 배포함  
+```
+$ cd code/auction_dapp/backend
+$ truffle init
+$ truffle compile
+$ truffle migrate --network ropsten
+```
 
 ## DApp governance
 
