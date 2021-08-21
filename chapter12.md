@@ -385,10 +385,35 @@ bzz://ab164cf37dc10647e43a233486cdeffa8334b026e32a480dd9cbd020c12d4581
 위 URL 이 사용자 편의적이지 않다.  다음 섹션에서 Ethereum Name Service 를 알아본다  
 
 # The Ethereum Name Service (ENS)
+전통적인 인터넷에선 Domain Name System(DNS)가 브라우저를 통해서 사람이 읽을 수 있는 이름을 제공했음  
+DNS 는 내부적으로 해당 이름과 IP 주소나 다른 식별자들을 연결해줌  
+이더리움 블록체인에서는 Ethereum Naming System(ENS)가 이런 기능을 분권화해서 제공하고 있음  
+
+예로서 이더리움 재단 후원 주소는 아래와 같음  
+0xfB6916095ca1df60bB79Ce92cE3Ea74c37c5d359  
+위 주소는 ENS 와 연동되어 있으므로 아래와 같음  
+ethereum.eth  
+
+ENS 는 단순히 스마트컨트랙트 이상인 기본적인 DApp 자체로서 분권화된 네임 서비스를 제공함  
+더욱이 ENS 는 등록, 관리, 등록된 이름 경매를 위해서 수많은 DApp 에서 지원됨  
+ENS DApp 이 다른 DApp 에게 서비스하기 위해서 만들어짐  
+
+본 섹션에서 어떻게 ENS가 작동하는지 볼 것임  
 
 ## History of Ethereum Name Services
+이름 등록이 블록체인에서 첫 화폐기반이 아닌 애플리케이션임  
+이름 서비스를 위한 ERC 와 많은 제안이 있었으나, Johnson 이 2016년 참여하면서 본격화 됨  
+ENS 가 2017년 5월 4일에 가동됨  
 
 ## The ENS Specification
+ENS 은 3가지 이더리움 개선 제안으로 규정됨: EIP-317 은 기본 기능을 정의하고  
+EIP-162 는 .eth 루트에 위한 경매 시스템을 기술함  
+EIP-181 은 주소의 역 연결성을 규정함  
+
+ENS 은 샌드위치 디자인 철학을 따라서 만들어짐  
+맨 아래층은 단순하며 위로 올라갈 수록 복잡해지나 코드는 교환될 수 있음  
+탑 층이 분린된 계정에 모든 자금을 유지함  
+
 ## Bottom Layer: Name Owners and Resolvers
 ## The Namehash algorithm
 ## How to choose a valid name
