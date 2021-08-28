@@ -1,13 +1,13 @@
 # Ethereum Basics
-본 챕터에서 배울 항목
-+ 지값 사용법
-+ 트랜잭션 만드는법
-+ 기초적인 스마트컨트랙트 사용법
+본 챕터에서 배울 항목  
++ 지값 사용법  
++ 트랜잭션 만드는법  
++ 기초적인 스마트컨트랙트 사용법  
 
 ## Ether Currency Units
-이더 화폐 단위
+이더 화폐 단위  
 
-화폐 단위: ether  
+화폐 단위: ether    
 표기 :  ETH  
 심볼 :  &#926;  (Unicode U+039E)  
 심볼 :  &#9830;  (Unicode U+2666)  
@@ -219,13 +219,49 @@ Remix IDE 에서 컴파일 [https://remix.ethereum.org](https://remix.ethereum.o
 ![코드](https://github.com/ethereumbook/ethereumbook/raw/develop/images/remix_faucet_load.png )  
 컴파일 탭에서 완료여부 확인  
 ![컴파일](https://github.com/ethereumbook/ethereumbook/raw/develop/images/remix_compile.png )  
+위 화면은 성공적으로 Faucet.sol 컨트랙트를 컴파일한 결과를 보여줌  
+문제가 발생한다면 대부분은 솔리디티 컴파일러 버전 미스매치 문제임  
 
+솔리디티 컴파일러가 Faucet.sol 를 EVM 바이트코드로 컴파일한 결과는 아래와 같이 생김  
+```
+PUSH1 0x80 PUSH1 0x40 MSTORE CALLVALUE DUP1 ISZERO PUSH2 0x10 JUMPI PUSH1 0x0 DUP1 REVERT JUMPDEST POP PUSH1 0xF4 DUP1 PUSH2 0x1F PUSH1 0x0 CODECOPY PUSH1 0x0 RETURN INVALID PUSH1 0x80 PUSH1 0x40 MSTORE PUSH1 0x4 CALLDATASIZE LT PUSH1 0x1F JUMPI PUSH1 0x0 CALLDATALOAD PUSH1 0xE0 SHR DUP1 PUSH4 0x2E1A7D4D EQ PUSH1 0x2A JUMPI PUSH1 0x25 JUMP JUMPDEST CALLDATASIZE PUSH1 0x25 JUMPI STOP JUMPDEST PUSH1 0x0 DUP1 REVERT JUMPDEST CALLVALUE DUP1 ISZERO PUSH1 0x35 JUMPI PUSH1 0x0 DUP1 REVERT JUMPDEST POP PUSH1 0x5F PUSH1 0x4 DUP1 CALLDATASIZE SUB PUSH1 0x20 DUP2 LT ISZERO PUSH1 0x4A JUMPI PUSH1 0x0 DUP1 REVERT JUMPDEST DUP2 ADD SWAP1 DUP1 DUP1 CALLDATALOAD SWAP1 PUSH1 0x20 ADD SWAP1 SWAP3 SWAP2 SWAP1 POP POP POP PUSH1 0x61 JUMP JUMPDEST STOP JUMPDEST PUSH8 0x16345785D8A0000 DUP2 GT ISZERO PUSH1 0x75 JUMPI PUSH1 0x0 DUP1 REVERT JUMPDEST CALLER PUSH20 0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF AND PUSH2 0x8FC DUP3 SWAP1 DUP2 ISZERO MUL SWAP1 PUSH1 0x40 MLOAD PUSH1 0x0 PUSH1 0x40 MLOAD DUP1 DUP4 SUB DUP2 DUP6 DUP9 DUP9 CALL SWAP4 POP POP POP POP ISZERO DUP1 ISZERO PUSH1 0xBA JUMPI RETURNDATASIZE PUSH1 0x0 DUP1 RETURNDATACOPY RETURNDATASIZE PUSH1 0x0 REVERT JUMPDEST POP POP JUMP INVALID LOG2 PUSH5 0x6970667358 0x22 SLT KECCAK256 STOP CODECOPY 0xDC DUP16 0xD SGT PUSH6 0xD2245039EDD7 RETURN CALLDATALOAD 0xC2 0xE4 SWAP9 0xF6 0x2C 0xF8 0xB3 OR JUMPDEST 0xAC 0xD8 CREATE2 SSTORE 0x4E SIGNEXTEND PUSH4 0x3164736F PUSH13 0x634300060C0033000000000000
+```
 
 ## Creating the Contract on the Blockchain
+이제 컴파일된 컨트랙트를 이더리움 블록체인에 등록하자   
+Ropsten 테스트넷을 사용할 것임  
+블록체인에 컨트랙트를 등록하는 것은 목적지 주소가 아래 처럼 특이함  
+0x0000000000000000000000000000000000000000  
+위 주소를 제로 어드레스라고 함  
+제로 어드레스는 특별 어드레스로서 블록체인에게 컨트랙트를 등록한다는 것을 알려주는 행위임   
+Remix IDE 가 위 과정을 다 핸들링하고, 트랜잭션을 메타마스크에게 보냄  
 
+첫째로 Run 탭으로 전환하고 "Injected Web3" 을 Enviroment 드롭다운 메뉴에서 선택함  
+이것이 Remix IDE 와 메타마스크 지갑과 연결해줌  
+또한 메타마스크를 통해 Ropsten 테스트넷에 연결함  
+Account 선택 박스에서 자신의 지갑 주소가 나타냄  
+![figure14](https://github.com/ethereumbook/ethereumbook/raw/develop/images/remix_run.png)  
+Run 설정 바로 아래에서 Faucet 컨트랙트가 준비되어 있음  
+Deploy 버튼을 클릭하면 배포됨  
 
+Remix 가 내부적으로 컨트랙트 생생 트랜잭션 만들어서 메타마스크에게 승인을 요청함  
+아래에 보이는 것처럼 컨트랙트 생성 트랜잭션은 이더가 제로임  
+컴파일된 컨트랙트의 바이트 크기는 275이며 3 gwei 가스를 소비함  
+![figure15](https://github.com/ethereumbook/ethereumbook/raw/develop/images/remix_metamask_create.png)  
+승인 버튼을 누르면 15 ~ 30 초 걸림  
+
+컨트랙트가 생성되면 아래처럼 Run 탭 버튼 아래에 주소가 나타남  
+![figure16](https://github.com/ethereumbook/ethereumbook/raw/develop/images/remix_contract_interact.png)  
+이제 Fuacet 컨트랙트는 자신의 주소를 갖음  
 
 ## Interacting with the Contract
+다시 요약해 보자  
+이더리움 컨트랙트은 돈을 컨트롤하는 프로그램이고 내부적으로 EVM 가상 머신이 작동하고 있음  
+컨트랙트는 특별 트랜잭션으로 생성되고 블록체인에 기록되기 위해 바이트코드로 전달됨  
+컨트랙트가 블록체인에 생성되면 지갑처럼 이더리움 주소를 갖음   
+언제든지 누군가 컨트랙트 주소로 트랜잭션을 전송하면 트랜잭션에 입력한 값과 함께 컨트랙트가 EVM 에서 작동함  
+컨트랙트 주소에 보내진 트랜잭션은 이더나 데이터를 갖고 있음  
+데이터가 보내지면 해당 데이터에서는 호명된 함수를 구체적으로 적어야하고  호출할 수 있고, 함수 인자도 전달해야함  
 
 ### Viewing the Contract Address in a Block Explorer
 
