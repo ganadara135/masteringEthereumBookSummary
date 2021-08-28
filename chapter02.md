@@ -264,11 +264,56 @@ Remix 가 내부적으로 컨트랙트 생생 트랜잭션 만들어서 메타�
 데이터가 보내지면 해당 데이터에서는 호명된 함수를 구체적으로 적어야하고  호출할 수 있고, 함수 인자도 전달해야함  
 
 ### Viewing the Contract Address in a Block Explorer
+블록체인에 배포된 컨트랙트를 Block Explorer 에서 확인해 보자  
+Remix IDE 에서 컨트랙트 주소를 복사하자  
+![figure17](https://github.com/ethereumbook/ethereumbook/raw/develop/images/remix_contract_address.png)  
+
+브라우저 주소창에 ropsten.etherscan.io 를 호출하고 검색 창에 복사한 주소를 넣자  그러면 아래와 같은 결과화면을 볼 수 있음  
+![Figure18](https://github.com/ethereumbook/ethereumbook/raw/develop/images/etherscan_contract_address.png)  
 
 ## Funding the Contract
+현재 만들어진 컨트랙트는 이더가 없으므로 보내보자  
+아래처럼 메타마스크를 켜서 스마트 컨트랙트 주소에 1 이더를 전송해 보자  
+![Figure19](https://github.com/ethereumbook/ethereumbook/raw/develop/images/metamask_send_to_contract.png)  
+1분 뒤에 Etherscan block explorer 를 릴로드하면 컨트랙트 주소에 또하나의 트랜잭션 기록이 보일것이고 1 이더가 잔액을 볼 수 있다  
+
+이름없는 디폴트 external payable 함수가 아래 처럼 생겼음  
+```
+receive () external payable {}
+```
+컨트랙트 주소에 트랜잭션을 전송할때 호출할 함수를 구체화하지 않으면 위의 디폴트 함수를 호출함  
+왜냐하면 payable 로 선언했기 때문에 컨트랙트 계정 잔고에 1 이더를 예치함  
+트랜잭션이 EVM에 의해 컨트랙트를 작동하게해서 잔고를 업데이트함  
 
 ## Withdrawing from Our Contract
+이제 Faucet 에서 일부 금액을 인출해보자  
+인출 함수와 인출할 양을 전달한 인자가 정의된 withdraw 함수가 필요함   
 
-## Conclusions
+Remix 탭에서 Run 탭에서 아래 그림과 같이 보일 것임  
+![Figure 20](https://github.com/ethereumbook/ethereumbook/raw/develop/images/remix_contract_interact.png)  
+이게 컨트랙트의 Remix 인터페이스이고 컨트랙트의 정의된 함수를 호출하는 트랜잭션을 만듦  
+인출할 금액을 넣고 트랜잭션을 생성하고자 인출 버튼을 클릭하자  
 
+인출 양은 wei 로 표기되므로 0.1 ether 는 100,000,000,000,000,000  wei 임(17 제로)  
+|  |  |  
+|--|--|  
+|팁|자바스크립트는 숫자 표기에 제한이 있으므로 10^17 은 Remix 에서 처리할 수 없음. 대신 쌍 따옴표로 문자화해서 표기하고 계산할 시에는 내부적으로 BigNumber 형을 사용함|  
+![Figure 21](https://github.com/ethereumbook/ethereumbook/raw/develop/images/remix_withdraw.png)  
+인출 버튼을 누르면 메타마스크가 파업창으로 나타내서 승인을 요청함  
+![Figure 22](https://github.com/ethereumbook/ethereumbook/raw/develop/images/metamask_withdraw.png)  
+승인 요청하고 1분후에 Etherscan 에서 해당 트랜재션을 조회해보자  
+![Figure 23](https://github.com/ethereumbook/ethereumbook/raw/develop/images/etherscan_withdrawal_tx.png)  
+컨트랙트 잔고를 보면 0.9 로 바뀐것을 볼 수 있음  
+Internal Transactions 에서 컨트랙트 주소의 히스토리 페이지를 볼 수 있음  
+컨트랙트 코드에 의해서 발생한 0.1 이더 전송을 internal 트랜잭션(또는 메시지)라고 함   
+"internal transaction" 은 아래와 같은 코드를 통해서 발생했음  
+```
+msg.sender.transfer(withdraw_amount);
+```
+아래는 internal transaction 결과화면음  
+![figure 24](https://github.com/ethereumbook/ethereumbook/raw/develop/images/etherscan_withdrawal_internal.png)  
 
+# Conclusions
+본 장에서는 메타마스크를 사용해서 지갑을 설정하고 faucet 를 Ropsten 에 배포함  
+그리고 이더를 컨트랙트 주소를 통해서 주고 받음  
+다음 챕터에서 스마트컨트랙트 프로그래밍에서 대해서 더 배워보자  
