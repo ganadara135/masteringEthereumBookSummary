@@ -408,7 +408,7 @@ CALLDATASIZE는 트랜잭션( calldata 라고 함 )과 함께 전송된 데이�
 |--|  
 |length of calldata from tx|  
 | Ox4  |  
-|--|  
+
 다음 지시사항은 LT인데, "미만"의 줄임말, LT 명령어는 스택의 맨 위 항목이 스택의 다음 항목보다 작은지 확인합니다.   
 우리의 경우 CALLDATASIZE의 결과가 4바이트 미만인지 확인합니다.  
 EVM이 트랜잭션의 호출 데이터가 최소 4바이트인지 확인하는 이유는 무엇입니까? 함수 식별자가 작동하는 방식 때문입니다.   
@@ -430,7 +430,7 @@ PUSH1 0x3f 명령어는 바이트 0x3f를 스택으로 푸시합니다.
 |--|  
 | 0x3f |  
 | 1 |  
-|--|  
+
 
 다음 명령은 "jump if"를 의미하는 JUMPI입니다. 다음과 같이 작동합니다.  
 ```
@@ -466,19 +466,22 @@ calldataload(p) //load 32 bytes of calldata starting from byte position p
 ```
 0은 PUSH1 0x0 명령에서 전달된 인덱스이므로 CALLDATALOAD는 바이트 0에서 시작하여 32바이트의 calldata를 읽은 다음 스택의 맨 위로 푸시합니다(원래 0x0을 팝한 후).  
 PUSH29 0x1000000명령 후 스택:  
+
 | Stack |  
+|--|
 | 0x1000000…​ (29 bytes in length) |  
 |--|  
 | 32 bytes of calldata starting at byte 0 |  
-|--|  
+
 SWAP1은 스택의 맨 위 요소를 그 뒤 의 i 번째 요소로 전환합니다.   
 이 경우 콜데이터와 0x1000000… 스왑합니다. 새 스택은 다음과 같습니다.  
+
 | Stack |  
 |--|  
 | 32 bytes of calldata starting at byte 0 |  
 |--|  
 | 0x1000000…​ (29 bytes in length) |  
-|--|  
+
 다음 명령어는 다음과 같이 작동하는 DIV입니다.  
 ```
 div(x, y) // integer division x / y
