@@ -470,7 +470,6 @@ PUSH29 0x1000000명령 후 스택:
 | Stack |  
 |--|
 | 0x1000000…​ (29 bytes in length) |  
-|--|  
 | 32 bytes of calldata starting at byte 0 |  
 
 SWAP1은 스택의 맨 위 요소를 그 뒤 의 i 번째 요소로 전환합니다.   
@@ -479,7 +478,6 @@ SWAP1은 스택의 맨 위 요소를 그 뒤 의 i 번째 요소로 전환합니
 | Stack |  
 |--|  
 | 32 bytes of calldata starting at byte 0 |  
-|--|  
 | 0x1000000…​ (29 bytes in length) |  
 
 다음 명령어는 다음과 같이 작동하는 DIV입니다.  
@@ -503,7 +501,7 @@ DIV(함수 식별자)의 결과가 스택에 푸시되고 스택은 이제 다�
 | Stack |  
 |--|  
 | function identifier sent in data |  
-|--|  
+
 PUSH4 0xffffffff 및 AND 명령어는 중복되므로 스택이 완료된 후에도 동일하게 유지되므로 완전히 무시할 수 있습니다.   
 DUP1 명령어는 함수 식별자인 스택의 첫 번째 항목을 복제합니다.   
 다음 명령어 PUSH4 0x2e1a7d4d는 함수의 미리 계산된 함수 식별자를 withdraw(uint256)스택에 푸시합니다.   
@@ -511,11 +509,9 @@ DUP1 명령어는 함수 식별자인 스택의 첫 번째 항목을 복제합�
 | Stack |  
 |--|  
 | 0x2e1a7d4d |  
-|--|  
 | function identifier sent in data |  
-|--|  
 | function identifier sent in data |  
-|--|  
+
 다음 명령인 EQ는 스택의 맨 위 두 항목을 꺼내서 비교합니다.   
 여기에서 디스패처가 주요 작업을 수행합니다.   
 트랜잭션의 msg.data 필드에 전송된 함수 식별자가 의 식별자와 일치하는지 비교합니다 withdraw(uint256).   
@@ -525,18 +521,16 @@ DUP1 명령어는 함수 식별자인 스택의 첫 번째 항목을 복제합�
 | Stack |  
 |--|  
 | 1 |  
-|--|  
 | function identifier sent in data> (now known to be 0x2e1a7d4d |  
-|--|  
+
 다음으로, 계약에서 인출(uint256) 기능이 있는 주소인 PUSH1 0x41이 있습니다.   
 이 명령 후 스택은 다음과 같습니다  
 | Stack |  
 |--|  
 | 0x41 |  
-|--|  
 | 1 |  
 | function identifier sent in msg.data |  
-|--|  
+
 JUMPI 명령어는 다음으로 스택의 맨 위 두 요소를 인수로 다시 한 번 받아들입니다.  
 이 경우, 우리는 jumpi(0x41, 1)를 가지고 있는데, 이것은 EVM에게 철회(uint256) 함수의 위치로 점프를 실행하도록 지시하고 해당 함수의 코드 실행을 계속할 수 있습니다.  
 
