@@ -1243,27 +1243,180 @@ contract OwnerWallet {
 이 계약은 이더를 회수하여 소유자만 인출 기능을 호출하여 인출할 수 있도록 합니다. 이 문제는 시공자의 이름이 계약과 정확히 동일하지 않기 때문에 발생합니다: 첫 글자가 다릅니다! 따라서, 모든 사용자는 OwnerWalet 함수에 전화를 걸고, 자신을 Owner로 설정한 다음, 계약에서 탈퇴를 호출하여 모든 에테르를 가져갈 수 있습니다.
 
 ## Preventative Techniques
+이 문제는 Solidity 컴파일러 버전 0.4.22에서 해결되었습니다. 이 버전에서는 함수의 이름이 계약 이름과 일치하도록 요구하지 않고 생성자를 지정하는 생성자 키워드를 도입했습니다. 이름 지정 문제를 방지하려면 이 키워드를 사용하여 생성자를 지정하는 것이 좋습니다.  
 
 ## Real-World Example: Rubixi
+루빅시는 이런 취약점을 드러낸 또 다른 피라미드 계획이었다. 원래는 Dynamic Pyramid로 불렸지만, 루빅시로 배치하기 전에 계약 이름이 변경되었습니다. 생성자 이름이 변경되지 않아 사용자가 생성자가 될 수 있습니다. 이 버그와 관련된 몇 가지 흥미로운 토론은 Bitcointalk에서 볼 수 있습니다. 궁극적으로, 그것은 사용자들이 피라미드 제도로부터 수수료를 청구하기 위해 제작자 지위를 위해 싸울 수 있게 했다. 이 특정 버그에 대한 자세한 내용은 "History of Ethereum Security Vulnerability, Hacks and Their Fixs"에서 확인할 수 있습니다.  
 
 # Uninitialized Storage Pointers
+EVM은 데이터를 저장 또는 메모리로 저장합니다. 계약을 개발할 때 기능의 로컬 변수에 대한 기본 유형과 정확한 방법을 이해하는 것이 좋습니다. 변수를 부적절하게 초기화하면 취약한 계약을 만들 수 있기 때문이다.
+
+EVM의 스토리지 및 메모리에 대한 자세한 내용은 데이터 위치, 스토리지의 상태 변수 레이아웃 및 메모리의 레이아웃에 대한 Solidity 설명서를 참조하십시오.  
 
 ## The Vulnerability
+함수의 로컬 변수는 유형에 따라 기본적으로 저장소 또는 메모리로 설정됩니다. 초기화되지 않은 로컬 스토리지 변수는 계약에 있는 다른 스토리지 변수의 값을 포함할 수 있습니다. 이 사실은 의도하지 않은 취약성을 발생시키거나 의도적으로 악용될 수 있습니다.
+
+NameRegistrar.sol의 비교적 간단한 이름 등록자 계약을 고려해 보겠습니다.  
+```
+// A locked name registrar
+contract NameRegistrar {
+
+    bool public unlocked = false;  // registrar locked, no name updates
+
+    struct NameRecord { // map hashes to addresses
+        bytes32 name;
+        address mappedAddress;
+    }
+
+    // records who registered names
+    mapping(address => NameRecord) public registeredNameRecord;
+    // resolves hashes to addresses
+    mapping(bytes32 => address) public resolve;
+
+    function register(bytes32 _name, address _mappedAddress) public {
+        // set up the new NameRecord
+        NameRecord newRecord;
+        newRecord.name = _name;
+        newRecord.mappedAddress = _mappedAddress;
+
+        resolve[_name] = _mappedAddress;
+        registeredNameRecord[msg.sender] = newRecord;
+
+        require(unlocked); // only allow registrations if contract is unlocked
+    }
+}
+```
+이 간단한 이름 등록자는 하나의 기능만 가지고 있습니다. 계약이 잠금 해제되면 누구나 이름을 등록하고(바이트 32 해시로) 해당 이름을 주소에 매핑할 수 있습니다. 등록 담당자는 처음에 잠기며, 25줄의 요구 사항으로 인해 등록자가 이름 레코드를 추가할 수 없습니다. 등기부를 잠금 해제할 방법이 없어 계약을 사용할 수 없는 것 같습니다! 그러나 잠금 해제된 변수에 관계없이 이름을 등록할 수 있는 취약성이 있습니다.
+
+이 취약성에 대해 논의하려면 먼저 Solidity에서 스토리지가 작동하는 방식을 이해해야 합니다. (적절한 기술적 세부 정보가 없는) 개괄적인 개요로서, 적절한 검토를 위해 Solidity 문서를 읽는 것이 좋습니다. 상태 변수는 계약에 나타나는 대로 슬롯에 순차적으로 저장됩니다(다 함께 그룹화할 수는 있지만 이 예에서는 그렇지 않으므로 걱정할 필요가 없습니다). 따라서 슬롯[0], 슬롯[1]에 등록된 NameRecord, 슬롯 [2] 등에 Unlocked가 존재합니다. 각 슬롯의 크기는 32바이트입니다(매핑에는 복잡성이 더해지지만 지금은 무시하겠습니다). 부울 잠금 해제는 false의 경우 0x000…0(640s, 0x 제외)으로, true의 경우 0x000…1(630s)로 표시됩니다. 보시다시피 이 예에서는 상당한 스토리지 낭비가 있습니다.
+
+퍼즐의 다음 부분은 기본적으로 Solidity가 구조와 같은 복잡한 데이터 유형을 로컬 변수로 초기화할 때 스토리지에 넣는다는 것입니다. 따라서 newRecord on line 18은 기본적으로 저장소로 설정됩니다. 이 취약성은 newRecord가 초기화되지 않았기 때문에 발생합니다. 기본적으로 저장소로 설정되므로 현재 잠금 해제된 포인터를 포함하는 저장소 슬롯[0]에 매핑됩니다. 라인 19와 20에서는 newRecord.name을 _name으로 설정하고 newRecord.mappedAddress를 _mapedAddress로 설정합니다. 이렇게 하면 슬롯[0]과 슬롯[1]의 저장 위치가 업데이트되어 잠금 해제된 상태 및 등록된 NameRecord와 연결된 저장소 슬롯이 모두 수정됩니다.
+
+즉, 레지스터 함수의 바이트32_name 매개 변수만으로 잠금 해제를 직접 수정할 수 있습니다. 따라서 _name의 마지막 바이트가 0이 아닌 경우 스토리지 슬롯의 마지막 바이트[0]를 수정하고 잠금 해제된 상태로 true로 직접 변경됩니다. 이러한 _name 값은 잠금 해제된 상태를 true로 설정한 것처럼 줄 25에서 required 호출이 성공하도록 합니다. 리믹스에서 한번 해보세요. 다음 형식의 _name을 사용하면 함수가 전달됩니다.
+```
+0x0000000000000000000000000000000000000000000000000000000000000001
+```
 
 ## Preventative Techniques
+Solidity 컴파일러는 의도하지 않은 스토리지 변수에 대한 경고를 표시합니다. 개발자는 스마트 계약을 작성할 때 이러한 경고에 주의해야 합니다. 현재 버전의 Mist(0.10)에서는 이러한 계약을 컴파일할 수 없습니다. 복잡한 유형을 처리할 때 메모리 또는 스토리지 지정자를 명시적으로 사용하여 해당 유형이 예상대로 작동하는지 확인하는 것이 좋습니다.
+
 ## Real-World Examples: OpenAddressLottery and CryptoRoulette Honey Pots
+초기화되지 않은 이 스토리지 변수 퀴크를 사용하여 일부 해커로부터 에테르를 수집하는 OpenAddressLottery라는 허니 포트가 배포되었습니다. 계약은 다소 관여되어 있기 때문에, 공격이 상당히 명확하게 설명될 수 있는 레딧 스레드에 분석을 맡기겠습니다.
+
+또 다른 허니팟인 크립토 룰렛도 이 트릭을 사용해 에테르를 수집했습니다. 공격이 어떻게 진행되는지 알 수 없는 경우 이 계약 등에 대한 개요는 "커플 이더리움 허니팟 계약 분석"을 참조하십시오.  
 
 # Floating Point and Precision
+이 쓰기(v0.4.24)를 기준으로 Solidity는 고정점 및 부동점 번호를 지원하지 않습니다. 즉, 부동소수 표현은 Solidity에서 정수 형식으로 구성되어야 합니다. 이로 인해 올바르게 구현되지 않으면 오류 및 취약성이 발생할 수 있습니다.  
+
 ## The Vulnerability
+Solidity에는 고정점 유형이 없으므로 개발자는 표준 정수 데이터 유형을 사용하여 자체 유형을 구현해야 합니다. 이 과정에서 개발자가 부딪힐 수 있는 여러 가지 함정이 있습니다. 이 섹션에서는 이 항목 중 일부를 강조 표시하도록 하겠습니다.
+
+코드 예부터 살펴보겠습니다(간단성을 위해 이 장 앞부분에서 설명한 오버플로/언더플로 문제는 무시함).  
+```
+contract FunWithNumbers {
+    uint constant public tokensPerEth = 10;
+    uint constant public weiPerEth = 1e18;
+    mapping(address => uint) public balances;
+
+    function buyTokens() external payable {
+        // convert wei to eth, then multiply by token rate
+        uint tokens = msg.value/weiPerEth*tokensPerEth;
+        balances[msg.sender] += tokens;
+    }
+
+    function sellTokens(uint tokens) public {
+        require(balances[msg.sender] >= tokens);
+        uint eth = tokens/tokensPerEth;
+        balances[msg.sender] -= tokens;
+        msg.sender.transfer(eth*weiPerEth);
+    }
+}
+```
+이 간단한 토큰 구매/판매 계약에는 몇 가지 명백한 문제가 있습니다. 토큰을 사고파는 수학적 계산은 맞지만 부동 소수점 숫자가 부족하면 잘못된 결과가 나온다. 예를 들어, 8행에서 토큰을 구입할 때 값이 1ether보다 작으면 초기 나눗셈이 0이 되고 최종 곱셈의 결과는 0으로 남습니다(예: 200 wei를 1e18 WeiEth로 나누면 0이 됩니다). 마찬가지로 토큰을 판매할 때 10보다 작은 토큰의 개수도 0 에테르가 됩니다. 사실 여기서 반올림은 항상 내려가기 때문에 29개의 토큰을 팔면 2개의 에테르가 됩니다.
+
+이 계약의 문제는 정밀도가 가장 가까운 에테르(즉, 1e18 wei)에만 해당된다는 것입니다. 더 높은 정밀도가 필요할 때 ERC20 토큰의 십진수를 처리할 때 까다로울 수 있습니다.  
 
 ## Preventative Techniques
+특히 경제적 의사결정을 반영하는 비율과 요율을 처리할 때 스마트 계약에서 올바른 정밀도를 유지하는 것이 매우 중요합니다.
+
+사용 중인 비율 또는 비율이 분수에 큰 분자를 허용하는지 확인해야 합니다. 예를 들어, 예에서는 속도 토큰PerEth를 사용했습니다. 차라리 weiPer를 사용하는 것이 나았을 것이다.토큰, 큰 숫자일 겁니다. 해당하는 토큰 수를 계산하기 위해 msg.value/weiPer를 수행할 수 있습니다.토큰. 이게 더 정확한 결과를 줄 수 있을 거야
+
+명심해야 할 또 다른 전술은 작전 순서를 염두에 두는 것이다. 이 예에서 토큰을 구입하기 위한 계산은 msg.value/weiPerEth*tokenPerEth였습니다. 곱하기 전에 분할이 발생합니다. (일부 언어와 달리 견고성은 작성된 순서대로 작업을 수행하도록 보장합니다.) 계산에서 곱셈을 먼저 수행한 다음 나누기를 수행했다면, 즉 msg.value*tokenPerEth/weiPerEth가 더 정확했을 것입니다.
+
+마지막으로, 숫자에 대한 임의의 정밀도를 정의할 때 값을 더 높은 정밀도로 변환하고 모든 수학 연산을 수행한 다음 마지막으로 출력에 필요한 정밀도로 다시 변환하는 것이 좋습니다. 일반적으로 unt256s가 가스 사용에 최적화되어 있으며, 이 중 일부는 수학적 연산의 정밀도에 사용될 수 있는 약 60 오더의 크기를 가진다. Solidity에서 모든 변수를 높은 정밀도로 유지하고 외부 앱에서 더 낮은 정밀도로 다시 변환하는 것이 좋습니다(기본적으로 ERC20 토큰 계약에서 소수점 변수가 작동하는 방식임). 이를 수행하는 방법의 예를 보려면 DS-Math를 살펴보는 것이 좋습니다. 이것은 약간의 펑키한 이름("wads"와 "ray")을 사용하지만, 이 개념은 유용합니다.  
+
 ## Real-World Example: Ethstick
+Ethstick 계약은 확장된 정밀도를 사용하지 않지만 웨이를 다루고 있습니다. 따라서, 이 계약은 반올림 문제가 있지만, 웨이의 정확성 수준에서만 문제가 발생할 것입니다. 더 심각한 결함도 있지만, 이는 블록 체인의 엔트로피를 얻기 어려운 것과 관련이 있습니다(엔트로피 일루전 참조). Ethstick 계약에 대한 자세한 내용은 Peter Vessenes의 또 다른 게시물인 "Ethereum Contracts Are Going Be Candy for Hackers"를 참조하십시오.  
 
 # Tx.Origin Authentication
+Solidity에는 전체 호출 스택을 통과하고 호출(또는 트랜잭션)을 처음 보낸 계정의 주소를 포함하는 전역 변수 tx.origin이 있습니다. 스마트 계약에서 인증에 이 변수를 사용하면 계약이 피싱과 유사한 공격에 취약해집니다.  
+
 ## The Vulnerability
+tx.origin 변수를 사용하는 사용자에게 권한을 부여하는 계약은 일반적으로 사용자가 취약한 계약에 대해 인증된 작업을 수행하도록 속일 수 있는 피싱 공격에 취약합니다.
+
+Phible.sol의 간단한 계약을 고려해보세요.  
+```
+contract Phishable {
+    address public owner;
+
+    constructor (address _owner) {
+        owner = _owner;
+    }
+
+    function () external payable {} // collect ether
+
+    function withdrawAll(address _recipient) public {
+        require(tx.origin == owner);
+        _recipient.transfer(this.balance);
+    }
+}
+```
+11번 라인에서는 계약에서 tx.origin을 사용하여 모든 인출 기능을 승인합니다. 이 계약을 통해 공격자는 다음 형식의 공격 계약을 만들 수 있습니다.  
+```
+import "Phishable.sol";
+
+contract AttackContract {
+
+    Phishable phishableContract;
+    address attacker; // The attacker's address to receive funds
+
+    constructor (Phishable _phishableContract, address _attackerAddress) {
+        phishableContract = _phishableContract;
+        attacker = _attackerAddress;
+    }
+
+    function () payable {
+        phishableContract.withdrawAll(attacker);
+    }
+}
+```
+공격자는 이 계약을 자신의 개인 주소로 위장하고 피해자(Phible 계약의 소유자)를 사회적으로 엔지니어링하여 해당 주소로 거래를 보낼 수 있습니다(아마도 이 계약에는 일정량의 에테르를 보낼 수 있습니다. 주의하지 않는 한 공격자는 공격자의 주소에 코드가 있다는 것을 알아차리지 못하거나 공격자가 이를 다중 서명 지갑 또는 일부 고급 스토리지 지갑으로 간주할 수 있습니다(기본적으로 공개 계약의 소스 코드를 사용할 수 없습니다).
+
+어쨌든 피해자가 충분한 가스가 포함된 트랜잭션을 AttackContract 주소로 보내면 폴백 함수를 호출하여 매개 변수 공격자와 Phible 계약의 discludeAll 함수를 호출합니다. 이로 인해 Phible 계약에서 공격자 주소로 모든 자금이 인출됩니다. 이는 통화를 처음 시작한 주소가 피해자(즉, Phible 계약의 소유자)였기 때문입니다. 따라서 tx.origin은 소유자와 동일하며 Phible 계약의 11 라인에 대한 요구사항이 통과될 것입니다.  
+
 
 ## Preventative Techniques
+tx.origin 은 스마트 계약에서 인증에 사용해서는 안 됩니다. tx.origin 변수를 사용하지 말라는 뜻은 아닙니다. 스마트 계약에는 몇 가지 합법적인 사용 사례가 있습니다. 예를 들어, 외부 계약이 현재 계약을 호출하는 것을 거부하려는 경우 필요한 형식의 요구 사항(tx.origin == msg.sender)을 구현할 수 있습니다.보낸 사람). 이는 현재 계약을 호출하는 데 사용되는 중간 계약을 방지하여 계약을 일반 코드 없는 주소로 제한합니다.  
 
 # Contract Libraries
+온체인을 호출 가능한 라이브러리로 배치하고 오프체인을 코드 템플릿 라이브러리로 배치하여 재사용할 수 있는 기존 코드가 많이 있습니다. 구축된 온플랫폼 라이브러리는 바이트코드 스마트 계약으로 존재하므로 프로덕션에 사용하기 전에 상당한 주의를 기울여야 합니다. 그러나 잘 구축된 기존 온플랫폼 라이브러리를 사용하면 최신 업그레이드의 혜택을 받을 수 있는 등 많은 이점이 있으며, 총 Ethereum 라이브 계약 수를 줄여 비용을 절감하고 Ethereum 생태계에 혜택을 줍니다.
+
+Ethereum에서 가장 널리 사용되는 리소스는 OpenZeppelin 제품군입니다. OpenZeppelin 제품군은 ERC20 및 ERC721 토큰 구현부터 다양한 크라우드세일 모델, Ownable, Pausable 또는 LimitBalance와 같은 계약에서 흔히 볼 수 있는 간단한 동작에 이르기까지 다양합니다. 이 저장소의 계약은 광범위하게 테스트되었으며 경우에 따라서는 사실상의 표준 구현으로 기능하기도 합니다. 무료로 사용할 수 있으며, Zeppelin이 지속적으로 증가하는 외부 기여자 목록과 함께 구축 및 유지관리하고 있습니다.
+
+또한 Zeppelin은 스마트 계약 애플리케이션을 안전하게 개발하고 관리하기 위한 서비스 및 툴의 오픈 소스 플랫폼인 Zeppelin OS를 제공합니다. 제플린OS는 개발자가 자체적으로 업그레이드가 가능한 검증된 계약의 온체인 라이브러리에 연결된 업그레이드 가능한 DApp을 쉽게 시작할 수 있도록 EVM 위에 계층을 제공합니다. 이러한 라이브러리의 다양한 버전이 Ethereum 플랫폼에 공존할 수 있으며, 보증 시스템을 통해 사용자는 서로 다른 방향으로 개선을 제안하거나 추진할 수 있습니다. 탈중앙화된 애플리케이션을 디버그, 테스트, 배포 및 모니터링하기 위한 일련의 오프체인 도구도 플랫폼에 의해 제공됩니다.
+
+프로젝트 ethm은 패키지 관리 시스템을 제공함으로써 생태계에서 발전하고 있는 다양한 자원을 정리하는 것을 목표로 한다. 따라서 레지스트리는 다음과 같은 추가 예를 제공합니다.  
+
++ Website: https://www.ethpm.com/  
+
++ Repository link: https://www.ethpm.com/registry  
+
++ GitHub link: https://github.com/ethpm  
+
++ Documentation: https://www.ethpm.com/docs/integration-guide  
+
 # Conclusion
+스마트 계약 영역에 종사하는 개발자는 알고 이해해야 할 것이 많습니다. 스마트 계약 설계 및 코드 작성의 모범 사례를 따르면 심각한 함정과 함정을 피할 수 있습니다.
+
+가장 기본적인 소프트웨어 보안 원칙은 신뢰할 수 있는 코드의 재사용을 극대화하는 것일 수 있습니다. 암호학에서 이것은 매우 중요하기 때문에 "자신의 암호화를 굴리지 말라"는 격언이 될 수 있다. 스마트계약의 경우 지역사회가 철저히 점검한 자유롭게 이용할 수 있는 도서관을 통해 최대한 많은 것을 얻는 셈이다.  
 
