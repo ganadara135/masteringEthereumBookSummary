@@ -286,6 +286,7 @@ Ethereum은 주소가 공용 키(따라서 개인 키)에서 올바르게 파생
 |  |  |
 |--|--|  
 |경고|Ethereum 프로토콜은 트랜잭션에서 수신자 주소의 유효성을 검사하지 않습니다. 해당하는 개인 키나 계약이 없는 주소로 보내 에테르를 "구워서" 영원히 사용할 수 없게 만들 수 있습니다. 검증은 사용자 인터페이스 수준에서 수행해야 합니다.|  
+
 트랜잭션을 잘못된 주소로 보내면 보낸 이더가 연소되어 대부분의 주소에 알려진 개인 키가 없기 때문에 이더에 영원히 액세스할 수 없게 됩니다(사용 불가).   
 주소의 유효성 검사는 사용자 인터페이스 수준에서 이루어지는 것으로 가정합니다([EIP55] 참조).   
 실제로, 이더를 태우는 데는 여러 가지 타당한 이유가 있습니다.   
@@ -308,7 +309,7 @@ web3.eth.sendTransaction({from: src, to: dst, \
   value: web3.utils.toWei(0.01, "ether"), data: ""});  
 ```
 우리의 지갑은 패리티 지갑에 표시된 것과 같이 보낼 값을 나타내는 확인 화면을 보여주지만 데이터는 없습니다.  
-![firure 1](https://github.com/ethereumbook/ethereumbook/raw/develop/images/parity_txdemo_value_nodata.png)  
+![figure 1](https://github.com/ethereumbook/ethereumbook/raw/develop/images/parity_txdemo_value_nodata.png)  
 
 다음 예제에서는 값과 데이터 페이로드를 모두 지정합니다.  
 ```
@@ -316,7 +317,6 @@ web3.eth.sendTransaction({from: src, to: dst, \
   value: web3.utils.toWei(0.01, "ether"), data: "0x1234"});
 ```
 우리의 지갑은 패리티 지갑에서 볼 수 있듯이 보낼 값과 데이터 페이로드를 나타내는 확인 화면을 보여주며, 가치와 데이터가 있는 트랜잭션을 보여줍니다.  
-```
 ![figure 2](https://github.com/ethereumbook/ethereumbook/raw/develop/images/parity_txdemo_value_data.png)  
 그림 2. 가치와 데이터가 있는 트랜잭션을 보여주는 패리티 지갑
 다음 트랜잭션에는 데이터 페이로드가 포함되지만 값이 0으로 지정됩니다.  
