@@ -103,12 +103,89 @@ live mainnet network 실행되는 전체 노드는 이더리움 개발에 필요
 https://git-scm.com.  https://www.rustup.rs/. https://golang.org/   
 
 # Parity
-풀 노드 이더리움 클라이언트와 DApp 브라우저의 구현이다. 모듈화되고, 안전하고, 확장 가능한 이더리움 클라이언트를 구축하기 위한 목적으로 시스템 프로그래밍 언어인 Rust로 "처음부터"작성되었다  
+패리티는 전체 노드 이더리움 클라이언트와 DApp 브라우저를 구현한 것이다. 시스템 프로그래밍 언어인 러스트(Rust)로 작성되었으며, 모듈식, 안전하고 확장 가능한 이더리움 클라이언트를 구축하기 위한 목적으로 작성되었다. 패리티는 영국 회사인 패리티 테크(Parity Tech)에 의해 개발되었으며 GPLv3 자유 소프트웨어 라이센스로 출시되었습니다.
+
+Parity를 설치하려면 Rust 패키지 관리자 카고를 사용하거나 GitHub에서 소스 코드를 다운로드하면 됩니다. 패키지 매니저도 소스 코드를 다운로드하기 때문에 두 옵션 간에 큰 차이가 없습니다. 다음 섹션에서는 직접 패리티를 다운로드하고 컴파일하는 방법을 보여드리겠습니다.
 
 ## Installing Parity
+패리티 위키에서는 다양한 환경 및 컨테이너에서 패리티를 구축하는 방법을 안내합니다. 원본에서 패리티를 작성하는 방법을 보여드리겠습니다. 여기서는 이미 러스트업을 사용하여 러스트를 설치했다고 가정합니다(클라이언트(노드) 구축 및 실행을 위한 소프트웨어 요구사항 참조).
+
+먼저 GitHub에서 소스 코드를 가져옴:
+```
+$ git clone https://github.com/paritytech/parity
+```
+그런 다음 패리티 디렉터리로 변경하고 카고를 사용하여 실행 파일을 작성합니다.
+```
+$ cd parity
+$ cargo install --path .
+```
+모든 것이 잘 되면 다음과 같은 것을 볼 수 있습니다:
+```
+$ cargo install --path .
+Installing parity-ethereum v2.7.0 (/root/parity)
+Updating crates.io index
+Updating git repository `https://github.com/paritytech/rust-ctrlc.git`
+Updating git repository `https://github.com/paritytech/app-dirs-rs`   Updating git repository
+
+ [...]
+
+Compiling parity-ethereum v2.7.0 (/root/parity)
+Finished release [optimized] target(s) in 10m 16s
+Installing /root/.cargo/bin/parity
+Installed package `parity-ethereum v2.7.0 (/root/parity)` (executable `parity`)
+$
+```
+--version 옵션을 호출하여 패리티를 실행하여 설치되어 있는지 확인합니다:
+```
+$ parity --version
+Parity Ethereum Client.
+  version Parity-Ethereum/v2.7.0-unstable-b69a33b3a-20200124/x86_64-unknown-linux-gnu/rustc1.40.0
+Copyright 2015-2020 Parity Technologies (UK) Ltd.
+License GPLv3+: GNU GPL version 3 or later http://gnu.org/licenses/gpl.html.
+This is free software: you are free to change and redistribute it.
+There is NO WARRANTY, to the extent permitted by law.
+
+By Wood/Paronyan/Kotewicz/Drwięga/Volf/Greeff
+   Habermeier/Czaban/Gotchac/Redman/Nikolsky
+   Schoedon/Tang/Adolfsson/Silva/Palm/Hirsz et al.
+$
+```
+좋습니다! 이제 패리티가 설치되었으므로 블록체인을 동기화하고 몇 가지 기본 명령줄 옵션을 시작할 수 있습니다.  
 
 # Go-Ethereum (Geth)
+겟은 이더리움 재단이 적극적으로 개발하는 바둑 언어 구현체여서 이더리움 클라이언트의 '공식' 구현체로 꼽힌다. 일반적으로 모든 이더리움 기반 블록체인은 자체 겟 구현체가 있을 것이다. Geth를 실행 중인 경우 다음 저장소 링크 중 하나를 사용하여 블록체인에 대한 올바른 버전을 가져올 수 있습니다:
+
++ Ethereum (or https://geth.ethereum.org/)  
+
++ Ethereum Classic  
+
++ Ellaism  
+
++ Expanse  
+
++ Musicoin  
+
++ Ubiq  
+
+
 ### Cloning the repository
+첫 번째 단계는 Git 저장소를 복제하여 소스 코드의 복사본을 얻는 것입니다.  
+
+선택한 리포지토리의 로컬 복제본을 만들려면 홈 디렉토리 또는 개발에 사용하는 디렉토리에서 다음과 같이 git 명령을 사용하십시오.  
+```
+$ git clone <Repository Link>
+```
+리포지토리를 로컬 시스템에 복사할 때 다음과 같은 진행률 보고서가 표시됩니다.
+```
+Cloning into 'go-ethereum'...
+remote: Enumerating objects: 86915, done.
+remote: Total 86915 (delta 0), reused 0 (delta 0), pack-reused 86915
+Receiving objects: 100% (86915/86915), 134.73 MiB | 29.30 MiB/s, done.
+Resolving deltas: 100% (57590/57590), done.
+```
+좋습니다! 이제 Geth의 로컬 복사본을 가지고 있으므로 플랫폼에 대한 실행 파일을 컴파일할 수 있습니다.  
+
+
 ### Building Geth from source code
 
 ## The First Synchronization of Ethereum-Based Blockchains
